@@ -1,6 +1,6 @@
 use std::{iter::Peekable, str::Chars};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
   Var, // TODO: add functions
   Num(f64),
@@ -12,12 +12,6 @@ pub enum Token {
   LParen, // groupings
   RParen,
   Err(String),
-}
-
-enum LexerState {
-  Initial,
-  Asterisk,
-  Digit,
 }
 
 #[derive(Debug)]
@@ -35,79 +29,53 @@ impl Iterator for Lexer<'_> {
   type Item = Token;
 
   fn next(&mut self) -> Option<Self::Item> {
-    let mut state: LexerState = LexerState::Initial;
-    let mut c: Option<char>;
-    let mut buf = String::new();
+    // consume whitespace
+    while let Some(&ch) = self.input.peek() {
+      if ch.is_whitespace() {
+        self.input.next();
+      } else {
+        break;
+      }
+    }
 
-    loop {
-      c = self.input.next();
-      match state {
-        LexerState::Initial => {
-          // returns none if this is none
-        let ch = c?;
-        if ch.is_whitespace(){
-            continue;
-        }
-          if ch.is_ascii_digit() {
-            if ch == '0' {
-              return Some(Token::Err("Got a number starting with 0!".to_string()));
-            }
-            buf = format!("{}{}", buf, ch);
-            if self.input.peek().is_none(){
-                return Some(Token::Num(buf.parse().unwrap()));
-            }
-            if let Some(nch) = self.input.peek() && (*nch).is_ascii_digit(){
-                state = LexerState::Digit;
-            }else{
-                state = LexerState::Initial;
-            }
+    let ch = self.input.next()?;
 
-            continue;
-          }
+    // Parse Numbers (including decimals)
+    if ch.is_ascii_digit() || ch == '.' {
+      let mut buf = String::new();
+      buf.push(ch);
 
-          if ch == '*' {
-            let next = self.input.peek();
-            if let Some(nch) = next
-              && *nch == '*'
-            {
-              state = LexerState::Asterisk;
-              continue;
-            }
-            return Some(Token::Mult);
-          }
-
-          return match ch {
-            '+' => Some(Token::Plus),
-            '-' => Some(Token::Minus),
-            '(' => Some(Token::LParen),
-            ')' => Some(Token::RParen),
-            '/' => Some(Token::Div),
-            'x' => Some(Token::Var),
-            _ => Some(Token::Err("Unexpected character!".to_string())),
-          };
-        }
-        LexerState::Digit => {
-          let ch = c.unwrap();
-          if ch.is_ascii_digit() {
-            buf = format!("{}{}", buf, ch);
-          }
-          let next = self.input.peek();
-          if let Some(nch) = next {
-            if !(*nch).is_ascii_digit() {
-              return Some(Token::Num(buf.parse().unwrap()));
-            }
-          } else {
-            return Some(Token::Num(buf.parse().unwrap()));
-          }
-        }
-        LexerState::Asterisk => {
-        if let Some(ch) = c && ch == '*'{
-            return Some(Token::Power);
-        }else{
-            return Some(Token::Err("Unexpected character!".to_string()));
-        }
+      while let Some(&next_ch) = self.input.peek() {
+        if next_ch.is_ascii_digit() || next_ch == '.' {
+          buf.push(self.input.next().unwrap());
+        } else {
+          break;
         }
       }
+
+      return match buf.parse() {
+        Ok(n) => Some(Token::Num(n)),
+        Err(_) => Some(Token::Err(format!("Invalid number format: {}", buf))),
+      };
+    }
+
+    // Parse operators and variables
+    match ch {
+      '*' => {
+        if let Some(&'*') = self.input.peek() {
+          self.input.next();
+          Some(Token::Power)
+        } else {
+          Some(Token::Mult)
+        }
+      }
+      '+' => Some(Token::Plus),
+      '-' => Some(Token::Minus),
+      '(' => Some(Token::LParen),
+      ')' => Some(Token::RParen),
+      '/' => Some(Token::Div),
+      'x' => Some(Token::Var),
+      _ => Some(Token::Err(format!("Unexpected character: {}", ch))),
     }
   }
 }
