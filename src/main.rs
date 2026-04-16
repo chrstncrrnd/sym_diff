@@ -12,5 +12,13 @@ fn main() {
     let a = buf.trim().chars().peekable();
 
     let lexer = Lexer::new(a);
-    println!("{:?}", parse(lexer));
+    let res = parse(lexer);
+    if let Ok(oki) = res{
+        println!("Parsed correctly as:");
+        println!("{:?}", oki);
+    }else{
+        println!("Got an error!");
+        println!("{}", res.err().unwrap());
+    }
+
 }

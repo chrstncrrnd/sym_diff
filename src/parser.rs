@@ -17,6 +17,11 @@ const TOK_PRECENDENCE: [Token; TOK_PRECENDENCE_COUNT] = [Token::Power, Token::Di
 
 pub fn parse(lexer: Lexer) -> Result<Expr, String>{
     let toks: Vec<Token> = lexer.collect();
+    for token in &toks{
+        if let Token::Err(msg) = token{
+            return Err(format!("Syntax error: {}", msg));
+        }
+    }
     parse_at_lvl(toks, TOK_PRECENDENCE_COUNT)
 }
 
@@ -27,7 +32,6 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         if toks.len() != 1 {
             return Err("Expected a singular token between binary expression!".to_string());
         }
-        println!("{:?}", toks[0]);
         return match toks[0] {
             Token::Var => Ok(Expr::Var),
             Token::Num(n) => Ok(Expr::Num(n)),
