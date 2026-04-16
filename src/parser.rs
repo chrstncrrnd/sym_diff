@@ -38,8 +38,22 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     let mut lhs: Vec<Token> = Vec::new();
     let mut rhs: Vec<Token> = Vec::new();
     let mut on_lhs = true;
+    let mut mult_implicit = false;
 
     for tok in &toks {
+        // if we are just after a number and we get a variable
+        // just like 10x
+        if mult_implicit && let Token::Var = tok{
+            on_lhs = false;
+        }
+
+        // 2 is the multiplication level, but we need to add one to account for the 0th level
+        if level == 3 && let Token::Num(_) = tok{
+            mult_implicit = true;
+        }else{
+            mult_implicit = false;
+        }
+
         // level 0 is special
         if *tok == TOK_PRECENDENCE[level - 1] {
             on_lhs = false;
@@ -72,6 +86,5 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
             } else {
                 res_rhs
             }
-            
     }
 }
