@@ -4,7 +4,6 @@ use crate::tokenizer::Lexer;
 
 mod tokenizer;
 
-
 fn main() {
     let mut buf: String = String::new();
     println!("Expression to differentiate: ");
