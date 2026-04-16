@@ -45,12 +45,23 @@ impl Iterator for Lexer<'_> {
         LexerState::Initial => {
           // returns none if this is none
         let ch = c?;
+        if ch.is_whitespace(){
+            continue;
+        }
           if ch.is_ascii_digit() {
             if ch == '0' {
               return Some(Token::Err("Got a number starting with 0!".to_string()));
             }
             buf = format!("{}{}", buf, ch);
-            state = LexerState::Digit;
+            if self.input.peek().is_none(){
+                return Some(Token::Num(buf.parse().unwrap()));
+            }
+            if let Some(nch) = self.input.peek() && (*nch).is_ascii_digit(){
+                state = LexerState::Digit;
+            }else{
+                state = LexerState::Initial;
+            }
+
             continue;
           }
 

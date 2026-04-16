@@ -11,5 +11,8 @@ fn main() {
   let a = buf.trim().chars().peekable();
 
   let mut lexer = Lexer::new(a);
-  println!("Lexer one: {:?}, two: {:?}", lexer.next(), lexer.next());
+  for t in lexer{
+      println!("{:?}", t);
+  }
+
 }
