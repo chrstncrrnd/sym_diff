@@ -5,6 +5,8 @@ A simple rust program that symbolically differentiates a given expression.
 
 
 ## Roadmap:
-- [ ] Tokenizer
-- [ ] Parser
+- [x] Tokenizer
+- [x] Parser
+    - [ ] Brackets parsing
+    - [ ] Allow syntax such as 10x
 - [ ] Differentiation rules (Chain, product, etc...)

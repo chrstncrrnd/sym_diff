@@ -1,18 +1,16 @@
 use std::io;
 
-use crate::tokenizer::Lexer;
+use crate::{parser::parse, tokenizer::{Lexer, Token}};
 
+mod parser;
 mod tokenizer;
 
 fn main() {
-  let mut buf: String = String::new();
-  println!("Expression to differentiate: ");
-  io::stdin().read_line(&mut buf).unwrap();
-  let a = buf.trim().chars().peekable();
+    let mut buf: String = String::new();
+    println!("Expression to differentiate: ");
+    io::stdin().read_line(&mut buf).unwrap();
+    let a = buf.trim().chars().peekable();
 
-  let mut lexer = Lexer::new(a);
-  for t in lexer{
-      println!("{:?}", t);
-  }
-
+    let lexer = Lexer::new(a);
+    println!("{:?}", parse(lexer));
 }
