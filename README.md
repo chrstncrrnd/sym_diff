@@ -10,10 +10,11 @@ A simple rust program that symbolically differentiates a given expression.
     - [x] Allow syntax such as `10x` (implicit multiplication)
     - [x] Brackets parsing
     - [ ] Implicit multiplication on brackets `10(x+3)`
+- [ ] Expression to text
 - [ ] Basic functions
 - [ ] Differentiation rules (Chain, product, etc...)
 - [ ] Add tests
 
 ## Errors to fix:
-- [ ] There should be a syntax error for `10 x *` (missing operand)
-- [ ] There should be a syntax error for `10 * (x++3)` (double operator)
+- [x] There should be a syntax error for `10 x *` (missing operand)
+- [x] There should be a syntax error for `10 * (x++3)` (double operator)

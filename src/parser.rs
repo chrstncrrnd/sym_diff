@@ -39,6 +39,10 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         };
     }
 
+    if TOK_PRECENDENCE[level - 1] == *toks.first().unwrap() || TOK_PRECENDENCE[level - 1] == *toks.last().unwrap(){
+        return Err("Error, binary operator requires two arguments!".to_string());
+    }
+
     let mut lhs: Vec<Token> = Vec::new();
     let mut rhs: Vec<Token> = Vec::new();
     let mut on_lhs = true;
@@ -74,7 +78,7 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         }
 
         // level 0 is special
-        if *tok == TOK_PRECENDENCE[level - 1] && bracket_level == 0 {
+        if *tok == TOK_PRECENDENCE[level - 1] && bracket_level == 0 && on_lhs {
             on_lhs = false;
         } else if on_lhs {
             lhs.push(tok.clone());
@@ -92,12 +96,15 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         lhs.remove(0);
         return parse_at_lvl(lhs, TOK_PRECENDENCE_COUNT);
     }
-    // there is none of the specified token in this expression
+    // there is none of the specified operator in this expression
     if on_lhs {
         parse_at_lvl(lhs, level - 1)
-    } else {
+    }
+    // we have encountered at least one of the given operator
+    else {
+        // println!("LHS: {:?}, RHS: {:?}", lhs, rhs);
         let res_lhs = parse_at_lvl(lhs.clone(), level - 1);
-        // rhs may not be free of plus
+        // rhs may not be free of current token
         let res_rhs = parse_at_lvl(rhs.clone(), level);
         if let Ok(ref lhs_ok) = res_lhs
             && let Ok(rhs_ok) = res_rhs
