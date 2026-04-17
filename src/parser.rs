@@ -30,7 +30,7 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     // resolve lowest level
     if level == 0 {
         if toks.len() != 1 {
-            return Err(format!("Expected a singular token between binary expression got tokens: {:?}", toks));
+            return Err(format!("Expected a singular token or bracketed expression between binary operator, got tokens: {:?}", toks));
         }
         return match toks[0] {
             Token::Var => Ok(Expr::Var),
