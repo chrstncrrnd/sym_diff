@@ -9,7 +9,7 @@ A simple rust program that symbolically differentiates a given expression.
 - [x] Parser
     - [x] Allow syntax such as `10x` (implicit multiplication)
     - [x] Brackets parsing
-        - [ ] Implicit multiplication on brackets `10(x+3)`
+    - [ ] Implicit multiplication on brackets `10(x+3)`
 - [ ] Basic functions
 - [ ] Differentiation rules (Chain, product, etc...)
 - [ ] Add tests
