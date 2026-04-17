@@ -13,16 +13,20 @@ pub enum Expr {
     Pow(Box<Expr>, Box<Expr>),
 }
 
-
 // Brackets, powers, Division, Multiplication, addition subtraction
 const TOK_PRECENDENCE_COUNT: usize = 5;
-const TOK_PRECENDENCE: [Token; TOK_PRECENDENCE_COUNT] = [Token::Power, Token::Div, Token::Mult, Token::Plus, Token::Minus];
+const TOK_PRECENDENCE: [Token; TOK_PRECENDENCE_COUNT] = [
+    Token::Power,
+    Token::Div,
+    Token::Mult,
+    Token::Plus,
+    Token::Minus,
+];
 
-
-pub fn parse(lexer: Lexer) -> Result<Expr, String>{
+pub fn parse(lexer: Lexer) -> Result<Expr, String> {
     let toks: Vec<Token> = lexer.collect();
-    for token in &toks{
-        if let Token::Err(msg) = token{
+    for token in &toks {
+        if let Token::Err(msg) = token {
             return Err(format!("Syntax error: {}", msg));
         }
     }
@@ -34,7 +38,10 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     // resolve lowest level
     if level == 0 {
         if toks.len() != 1 {
-            return Err(format!("Expected a singular token or bracketed expression between binary operator, got tokens: {:?}", toks));
+            return Err(format!(
+                "Expected a singular token or bracketed expression between binary operator, got tokens: {:?}",
+                toks
+            ));
         }
         return match toks[0] {
             Token::Var => Ok(Expr::Var),
@@ -43,7 +50,9 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         };
     }
 
-    if TOK_PRECENDENCE[level - 1] == *toks.first().unwrap() || TOK_PRECENDENCE[level - 1] == *toks.last().unwrap(){
+    if TOK_PRECENDENCE[level - 1] == *toks.first().unwrap()
+        || TOK_PRECENDENCE[level - 1] == *toks.last().unwrap()
+    {
         return Err("Error, binary operator requires two arguments!".to_string());
     }
 
@@ -55,29 +64,30 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     let mut bracketed_statement = true;
 
     for tok in &toks {
-        if let Token::LParen = tok{
+        if let Token::LParen = tok {
             bracket_level += 1;
         }
         // this condition must go here because if we put it before the above, we get zero at the
         // start of the loop and after the next means we get zero at the end of the loop
-        if bracket_level == 0{
+        if bracket_level == 0 {
             bracketed_statement = false;
         }
-        if let Token::RParen = tok{
+        if let Token::RParen = tok {
             bracket_level -= 1;
         }
 
-
         // if we are just after a number and we get a variable
         // just like 10x
-        if mult_implicit && let Token::Var = tok{
+        if mult_implicit && let Token::Var = tok {
             on_lhs = false;
         }
 
         // 2 is the multiplication level, but we need to add one to account for the 0th level
-        if level == 3 && let Token::Num(_) = tok{
+        if level == 3
+            && let Token::Num(_) = tok
+        {
             mult_implicit = true;
-        }else{
+        } else {
             mult_implicit = false;
         }
 
@@ -90,8 +100,8 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
             rhs.push(tok.clone());
         }
     }
-    if bracketed_statement{
-        if lhs.is_empty(){
+    if bracketed_statement {
+        if lhs.is_empty() {
             return Err("Missing operand!".to_string());
         }
 
@@ -122,17 +132,16 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
                 _ => Err("Fatal error!".to_string()),
             }
         } else if let Err(lhs_err) = res_lhs {
-                Err(lhs_err)
-            } else {
-                res_rhs
-            }
+            Err(lhs_err)
+        } else {
+            res_rhs
+        }
     }
 }
 
-
-impl Display for Expr{
+impl Display for Expr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self{
+        match self {
             Expr::Var => write!(f, "x"),
             Expr::Num(n) => write!(f, "{n}"),
             Expr::Div(a, b) => write!(f, "({a} / {b})"),
@@ -140,13 +149,14 @@ impl Display for Expr{
             Expr::Sub(a, b) => write!(f, "({a} - {b})"),
             Expr::Pow(a, b) => write!(f, "({a} ** {b})"),
             Expr::Prod(a, b) => {
-                if let Expr::Num(first) = **a && let Expr::Num(second) = **b{
+                if let Expr::Num(first) = **a
+                    && let Expr::Num(second) = **b
+                {
                     write!(f, "({first} * {second})")
-                }else{
+                } else {
                     write!(f, "({a}{b})")
                 }
             }
-
         }
     }
 }

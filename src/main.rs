@@ -13,12 +13,11 @@ fn main() {
 
     let lexer = Lexer::new(a);
     let res = parse(lexer);
-    if let Ok(oki) = res{
+    if let Ok(oki) = res {
         print!("Parsed expression correctly as: ");
         println!("{}", oki);
-    }else{
+    } else {
         eprint!("Recieved an error: ");
         eprintln!("{}", res.err().unwrap());
     }
-
 }
