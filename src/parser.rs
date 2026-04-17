@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, vec};
 
 use crate::tokenizer::{Lexer, Token};
 
@@ -30,7 +30,37 @@ pub fn parse(lexer: Lexer) -> Result<Expr, String> {
             return Err(format!("Syntax error: {}", msg));
         }
     }
+    let toks = preprocessor_explicit_mult(toks);
     parse_at_lvl(toks, TOK_PRECENDENCE_COUNT)
+}
+
+fn preprocessor_explicit_mult(tokens: Vec<Token>) -> Vec<Token>{
+    let mut out = vec![];
+    // we insert a mult between:
+    // Num, Var           e.g. => 10x
+    // Var, LParen        e.g. => x(10)
+    // RParen, LParen     e.g. => (10)(x)
+    // Num, LParen        e.g. => 10(x)
+    // RParen, Var        e.g. => (10)x
+    let mut prev_token: Option<Token> = None;
+    for tok in tokens{
+        if let Some(Token::Num(_)) = prev_token && tok == Token::Var{
+            out.push(Token::Mult);
+        }else if let Some(Token::Var) = prev_token && tok == Token::LParen{
+            out.push(Token::Mult);
+        }else if let Some(Token::RParen) = prev_token && tok == Token::LParen{
+            out.push(Token::Mult);
+        }else if let Some(Token::Num(_)) = prev_token && tok == Token::LParen{
+            out.push(Token::Mult);
+        }else if let Some(Token::RParen) = prev_token && tok == Token::Var{
+            out.push(Token::Mult);
+        }
+        out.push(tok.clone());
+
+        prev_token = Some(tok);
+    }
+
+    out
 }
 
 fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
@@ -59,7 +89,6 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     let mut lhs: Vec<Token> = Vec::new();
     let mut rhs: Vec<Token> = Vec::new();
     let mut on_lhs = true;
-    let mut mult_implicit = false;
     let mut bracket_level = 0;
     let mut bracketed_statement = true;
 
@@ -74,21 +103,6 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         }
         if let Token::RParen = tok {
             bracket_level -= 1;
-        }
-
-        // if we are just after a number and we get a variable
-        // just like 10x
-        if mult_implicit && let Token::Var = tok {
-            on_lhs = false;
-        }
-
-        // 2 is the multiplication level, but we need to add one to account for the 0th level
-        if level == 3
-            && let Token::Num(_) = tok
-        {
-            mult_implicit = true;
-        } else {
-            mult_implicit = false;
         }
 
         // level 0 is special
