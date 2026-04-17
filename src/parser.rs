@@ -30,7 +30,7 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     // resolve lowest level
     if level == 0 {
         if toks.len() != 1 {
-            return Err("Expected a singular token between binary expression!".to_string());
+            return Err(format!("Expected a singular token between binary expression got tokens: {:?}", toks));
         }
         return match toks[0] {
             Token::Var => Ok(Expr::Var),
@@ -43,8 +43,23 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     let mut rhs: Vec<Token> = Vec::new();
     let mut on_lhs = true;
     let mut mult_implicit = false;
+    let mut bracket_level = 0;
+    let mut bracketed_statement = true;
 
     for tok in &toks {
+        if let Token::LParen = tok{
+            bracket_level += 1;
+        }
+        // this condition must go here because if we put it before the above, we get zero at the
+        // start of the loop and after the next means we get zero at the end of the loop
+        if bracket_level == 0{
+            bracketed_statement = false;
+        }
+        if let Token::RParen = tok{
+            bracket_level -= 1;
+        }
+
+
         // if we are just after a number and we get a variable
         // just like 10x
         if mult_implicit && let Token::Var = tok{
@@ -59,13 +74,23 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         }
 
         // level 0 is special
-        if *tok == TOK_PRECENDENCE[level - 1] {
+        if *tok == TOK_PRECENDENCE[level - 1] && bracket_level == 0 {
             on_lhs = false;
         } else if on_lhs {
             lhs.push(tok.clone());
         } else {
             rhs.push(tok.clone());
         }
+    }
+    if bracketed_statement{
+        if lhs.is_empty(){
+            return Err("Missing operand!".to_string());
+        }
+
+        // remove the brackets
+        lhs.pop();
+        lhs.remove(0);
+        return parse_at_lvl(lhs, TOK_PRECENDENCE_COUNT);
     }
     // there is none of the specified token in this expression
     if on_lhs {

@@ -8,7 +8,7 @@ A simple rust program that symbolically differentiates a given expression.
 - [x] Tokenizer
 - [x] Parser
     - [x] Allow syntax such as `10x`
-    - [ ] Brackets parsing
+    - [x] Brackets parsing
 - [ ] Basic functions
 - [ ] Differentiation rules (Chain, product, etc...)
 - [ ] Add tests
