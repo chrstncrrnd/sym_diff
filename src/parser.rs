@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::tokenizer::{Lexer, Token};
 
 #[derive(Clone, Debug)]
@@ -10,6 +12,8 @@ pub enum Expr {
     Sub(Box<Expr>, Box<Expr>),
     Pow(Box<Expr>, Box<Expr>),
 }
+
+
 // Brackets, powers, Division, Multiplication, addition subtraction
 const TOK_PRECENDENCE_COUNT: usize = 5;
 const TOK_PRECENDENCE: [Token; TOK_PRECENDENCE_COUNT] = [Token::Power, Token::Div, Token::Mult, Token::Plus, Token::Minus];
@@ -122,5 +126,27 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
             } else {
                 res_rhs
             }
+    }
+}
+
+
+impl Display for Expr{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self{
+            Expr::Var => write!(f, "x"),
+            Expr::Num(n) => write!(f, "{n}"),
+            Expr::Div(a, b) => write!(f, "({a} / {b})"),
+            Expr::Sum(a, b) => write!(f, "({a} + {b})"),
+            Expr::Sub(a, b) => write!(f, "({a} - {b})"),
+            Expr::Pow(a, b) => write!(f, "({a} ** {b})"),
+            Expr::Prod(a, b) => {
+                if let Expr::Num(first) = **a && let Expr::Num(second) = **b{
+                    write!(f, "({first} * {second})")
+                }else{
+                    write!(f, "({a}{b})")
+                }
+            }
+
+        }
     }
 }

@@ -15,7 +15,7 @@ fn main() {
     let res = parse(lexer);
     if let Ok(oki) = res{
         print!("Parsed expression correctly as: ");
-        println!("{:?}", oki);
+        println!("{}", oki);
     }else{
         eprint!("Recieved an error: ");
         eprintln!("{}", res.err().unwrap());
