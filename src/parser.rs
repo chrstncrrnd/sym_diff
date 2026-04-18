@@ -1,6 +1,9 @@
 use std::{fmt::Display, vec};
 
-use crate::tokenizer::{Lexer, Token};
+use crate::{
+    functions::Func,
+    tokenizer::{Lexer, Token},
+};
 
 #[derive(Clone, Debug)]
 pub enum Expr {
@@ -11,6 +14,7 @@ pub enum Expr {
     Sum(Box<Expr>, Box<Expr>),
     Sub(Box<Expr>, Box<Expr>),
     Pow(Box<Expr>, Box<Expr>),
+    Func(Func, Box<Expr>),
 }
 
 // Brackets, powers, Division, Multiplication, addition subtraction
@@ -34,7 +38,7 @@ pub fn parse(lexer: Lexer) -> Result<Expr, String> {
     parse_at_lvl(toks, TOK_PRECENDENCE_COUNT)
 }
 
-fn preprocessor_explicit_mult(tokens: Vec<Token>) -> Vec<Token>{
+fn preprocessor_explicit_mult(tokens: Vec<Token>) -> Vec<Token> {
     let mut out = vec![];
     // we insert a mult between:
     // Num, Var           e.g. => 10x
@@ -43,16 +47,26 @@ fn preprocessor_explicit_mult(tokens: Vec<Token>) -> Vec<Token>{
     // Num, LParen        e.g. => 10(x)
     // RParen, Var        e.g. => (10)x
     let mut prev_token: Option<Token> = None;
-    for tok in tokens{
-        if let Some(Token::Num(_)) = prev_token && tok == Token::Var{
+    for tok in tokens {
+        if let Some(Token::Num(_)) = prev_token
+            && tok == Token::Var
+        {
             out.push(Token::Mult);
-        }else if let Some(Token::Var) = prev_token && tok == Token::LParen{
+        } else if let Some(Token::Var) = prev_token
+            && tok == Token::LParen
+        {
             out.push(Token::Mult);
-        }else if let Some(Token::RParen) = prev_token && tok == Token::LParen{
+        } else if let Some(Token::RParen) = prev_token
+            && tok == Token::LParen
+        {
             out.push(Token::Mult);
-        }else if let Some(Token::Num(_)) = prev_token && tok == Token::LParen{
+        } else if let Some(Token::Num(_)) = prev_token
+            && tok == Token::LParen
+        {
             out.push(Token::Mult);
-        }else if let Some(Token::RParen) = prev_token && tok == Token::Var{
+        } else if let Some(Token::RParen) = prev_token
+            && tok == Token::Var
+        {
             out.push(Token::Mult);
         }
         out.push(tok.clone());
@@ -86,12 +100,23 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         return Err("Error, binary operator requires two arguments!".to_string());
     }
 
+
     let mut lhs: Vec<Token> = Vec::new();
     let mut rhs: Vec<Token> = Vec::new();
     let mut on_lhs = true;
     let mut bracket_level = 0;
     let mut bracketed_statement = true;
 
+    if let Some(Token::Func(_)) = toks.first(){
+        let mut in_of = true;
+        let mut bracketed = true;
+        let mut tok_iter = toks.iter();
+        // skip the func token
+        tok_iter.next();
+        for tok in tok_iter{
+            // TODO: figure this out
+        }
+    }
     for tok in &toks {
         if let Token::LParen = tok {
             bracket_level += 1;
@@ -170,6 +195,9 @@ impl Display for Expr {
                 } else {
                     write!(f, "({a}{b})")
                 }
+            }
+            Expr::Func(func, arg) => {
+                write!(f, "{func}({arg})")
             }
         }
     }
