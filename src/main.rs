@@ -1,9 +1,10 @@
 use std::io;
 
-use crate::{parser::parse, tokenizer::Lexer};
+use crate::{parser::parse, tokenizer::{Lexer, Token}};
 
 mod parser;
 mod tokenizer;
+mod functions;
 
 fn main() {
     let mut buf: String = String::new();
@@ -12,6 +13,8 @@ fn main() {
     let a = buf.trim().chars().peekable();
 
     let lexer = Lexer::new(a);
+    println!("Lexer: {:?}", lexer.collect::<Vec<Token>>());
+    return;
     let res = parse(lexer);
     if let Ok(oki) = res {
         print!("Parsed expression correctly as: ");

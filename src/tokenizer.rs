@@ -1,5 +1,7 @@
 use std::{iter::Peekable, str::Chars};
 
+use crate::functions::Func;
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Token {
     Var, // TODO: add functions
@@ -12,6 +14,7 @@ pub enum Token {
     LParen, // groupings
     RParen,
     Err(String),
+    Func(Func),
 }
 
 #[derive(Debug)]
@@ -40,7 +43,7 @@ impl Iterator for Lexer<'_> {
 
         let ch = self.input.next()?;
 
-        // Parse Numbers (including decimals)
+        // numbers (including decimals)
         if ch.is_ascii_digit() || ch == '.' {
             let mut buf = String::new();
             buf.push(ch);
@@ -59,7 +62,33 @@ impl Iterator for Lexer<'_> {
             };
         }
 
-        // Parse operators and variables
+        // var and funcs
+        if ch.is_alphabetic() {
+            let mut buf = String::new();
+            buf.push(ch);
+
+            // consume all contiguous alphabetic characters
+            while let Some(&next_ch) = self.input.peek() {
+                if next_ch.is_alphabetic() {
+                    buf.push(self.input.next().unwrap());
+                } else {
+                    break;
+                }
+            }
+
+            // check if its a var
+            if buf == "x" {
+                return Some(Token::Var);
+            }
+
+            if let Ok(func) = buf.parse::<Func>() {
+                return Some(Token::Func(func));
+            }
+
+            return Some(Token::Err(format!("Unknown identifier: {}", buf)));
+        }
+
+        // operators
         match ch {
             '*' => {
                 if let Some(&'*') = self.input.peek() {
@@ -74,7 +103,6 @@ impl Iterator for Lexer<'_> {
             '(' => Some(Token::LParen),
             ')' => Some(Token::RParen),
             '/' => Some(Token::Div),
-            'x' => Some(Token::Var),
             _ => Some(Token::Err(format!("Unexpected character: {}", ch))),
         }
     }
