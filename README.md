@@ -16,6 +16,10 @@ A simple rust program that symbolically differentiates a given expression.
     - [ ] Parser: allow for `sin 10 x` => `sin(10(x))`
     - [ ] Tokenizer: parse text differently such that `sinx` => `sin(x)` works
 - [ ] Differentiation rules (Chain, product, etc...)
+- [ ] Differentiation strategies
+- [ ] Simplification of expressions
+- [ ] LaTeX support for expression output
+- [ ] LaTeX support for expression input
 - [ ] Add tests
 
 ## Errors to fix:
