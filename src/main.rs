@@ -1,10 +1,13 @@
 use std::io;
 
-use crate::{parser::parse, tokenizer::{Lexer, Token}};
+use crate::{
+    parser::parse,
+    tokenizer::{Lexer, Token},
+};
 
+mod functions;
 mod parser;
 mod tokenizer;
-mod functions;
 
 fn main() {
     let mut buf: String = String::new();
