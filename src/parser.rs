@@ -14,7 +14,7 @@ pub enum Expr {
     Sum(Box<Expr>, Box<Expr>),
     Sub(Box<Expr>, Box<Expr>),
     Pow(Box<Expr>, Box<Expr>),
-    Func(Func, Box<Expr>),
+    F(Func, Box<Expr>),
 }
 
 // Brackets, powers, Division, Multiplication, addition subtraction
@@ -46,31 +46,25 @@ fn preprocessor_explicit_mult(tokens: Vec<Token>) -> Vec<Token> {
     // RParen, LParen     e.g. => (10)(x)
     // Num, LParen        e.g. => 10(x)
     // RParen, Var        e.g. => (10)x
+
+
     let mut prev_token: Option<Token> = None;
+
     for tok in tokens {
-        if let Some(Token::Num(_)) = prev_token
-            && tok == Token::Var
-        {
-            out.push(Token::Mult);
-        } else if let Some(Token::Var) = prev_token
-            && tok == Token::LParen
-        {
-            out.push(Token::Mult);
-        } else if let Some(Token::RParen) = prev_token
-            && tok == Token::LParen
-        {
-            out.push(Token::Mult);
-        } else if let Some(Token::Num(_)) = prev_token
-            && tok == Token::LParen
-        {
-            out.push(Token::Mult);
-        } else if let Some(Token::RParen) = prev_token
-            && tok == Token::Var
-        {
+        // do we insert a mult token
+        let insert_mult = matches!((&prev_token, &tok), 
+            (Some(Token::Num(_)), Token::Var | Token::LParen | Token::Func(_)) |
+            (Some(Token::Var), Token::LParen | Token::Func(_) | Token::Var) |
+            (Some(Token::RParen), Token::LParen | Token::Var | Token::Func(_))
+        );
+
+
+        if insert_mult {
             out.push(Token::Mult);
         }
-        out.push(tok.clone());
 
+
+        out.push(tok.clone());
         prev_token = Some(tok);
     }
 
@@ -81,6 +75,16 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     // println!("Called parse_at_lvl with toks: {:?} and level: {}", toks, level);
     // resolve lowest level
     if level == 0 {
+        // we check for functions at the lowest level
+        if let Some(Token::Func(f)) = toks.first() {
+            if toks.len() < 2 {
+                return Err(format!("Expected argument for function {}", f));
+            }
+            // parse arg of func
+            let arg = parse_at_lvl(toks[1..].to_vec(), TOK_PRECENDENCE_COUNT)?;
+            return Ok(Expr::F(*f, Box::new(arg)));
+        }
+
         if toks.len() != 1 {
             return Err(format!(
                 "Expected a singular token or bracketed expression between binary operator, got tokens: {:?}",
@@ -107,16 +111,6 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     let mut bracket_level = 0;
     let mut bracketed_statement = true;
 
-    if let Some(Token::Func(_)) = toks.first(){
-        let mut in_of = true;
-        let mut bracketed = true;
-        let mut tok_iter = toks.iter();
-        // skip the func token
-        tok_iter.next();
-        for tok in tok_iter{
-            // TODO: figure this out
-        }
-    }
     for tok in &toks {
         if let Token::LParen = tok {
             bracket_level += 1;
@@ -196,8 +190,8 @@ impl Display for Expr {
                     write!(f, "({a}{b})")
                 }
             }
-            Expr::Func(func, arg) => {
-                write!(f, "{func}({arg})")
+            Expr::F(func, arg) => {
+                write!(f, "{}({arg})", func)
             }
         }
     }
