@@ -12,7 +12,9 @@ A simple rust program that symbolically differentiates a given expression.
     - [x] ~Implicit multiplication on brackets `10(x+3)`~
 - [x] ~Expression to text~
     - [ ] In a nice way
-- [ ] Basic functions
+- [x] ~Basic functions~
+    - [ ] Parser: allow for `sin 10 x` => `sin(10(x))`
+    - [ ] Tokenizer: parse text differently such that `sinx` => `sin(x)` works
 - [ ] Differentiation rules (Chain, product, etc...)
 - [ ] Add tests
 

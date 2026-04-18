@@ -191,7 +191,7 @@ impl Display for Expr {
                 }
             }
             Expr::F(func, arg) => {
-                write!(f, "{}({arg})", func)
+                write!(f, "{func}({arg})")
             }
         }
     }

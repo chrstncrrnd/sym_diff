@@ -21,3 +21,9 @@ x ** 3
 ## Parenthesis
 
 2 + (x + 2)
+
+## Basic functions
+
+log(10x)
+
+sin x
