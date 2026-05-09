@@ -37,3 +37,4 @@ A simple rust program that symbolically differentiates a given expression.
 ## Errors to fix:
 - [x] ~There should be a syntax error for `10 x *` (missing operand)~
 - [x] ~There should be a syntax error for `10 * (x++3)` (double operator)~
+- [ ] Find some way of properly parsing `(x)**2`

@@ -80,6 +80,9 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     // println!("Called parse_at_lvl with toks: {:?} and level: {}", toks, level);
     // resolve lowest level
     if level == 0 {
+        if matches!((toks.first(), toks.last()), (Some(Token::LParen), Some(Token::RParen))){
+            return parse_at_lvl(toks.clone(), TOK_PRECENDENCE_COUNT);
+        }
         // we check for functions at the lowest level
         if let Some(Token::Func(f)) = toks.first() {
             if toks.len() < 2 {
