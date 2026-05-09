@@ -1,10 +1,8 @@
 use std::io;
 
-use crate::{
-    parser::parse,
-    tokenizer::{Lexer, Token},
-};
+use crate::{diff::diff, parser::parse, tokenizer::Lexer};
 
+mod diff;
 mod functions;
 mod parser;
 mod tokenizer;
@@ -22,6 +20,8 @@ fn main() {
         print!("Parsed expression correctly as: ");
         println!("View: {}", oki);
         println!("DebugView: {:?}", oki);
+        let diffed = diff(oki).unwrap();
+        println!("Diff: {}", diffed);
     } else {
         eprint!("Recieved an error: ");
         eprintln!("{}", res.err().unwrap());

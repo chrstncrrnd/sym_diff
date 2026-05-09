@@ -47,22 +47,27 @@ fn preprocessor_explicit_mult(tokens: Vec<Token>) -> Vec<Token> {
     // Num, LParen        e.g. => 10(x)
     // RParen, Var        e.g. => (10)x
 
-
     let mut prev_token: Option<Token> = None;
 
     for tok in tokens {
         // do we insert a mult token
-        let insert_mult = matches!((&prev_token, &tok), 
-            (Some(Token::Num(_)), Token::Var | Token::LParen | Token::Func(_)) |
-            (Some(Token::Var), Token::LParen | Token::Func(_) | Token::Var) |
-            (Some(Token::RParen), Token::LParen | Token::Var | Token::Func(_))
+        let insert_mult = matches!(
+            (&prev_token, &tok),
+            (
+                Some(Token::Num(_)),
+                Token::Var | Token::LParen | Token::Func(_)
+            ) | (
+                Some(Token::Var),
+                Token::LParen | Token::Func(_) | Token::Var
+            ) | (
+                Some(Token::RParen),
+                Token::LParen | Token::Var | Token::Func(_)
+            )
         );
-
 
         if insert_mult {
             out.push(Token::Mult);
         }
-
 
         out.push(tok.clone());
         prev_token = Some(tok);
@@ -103,7 +108,6 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     {
         return Err("Error, binary operator requires two arguments!".to_string());
     }
-
 
     let mut lhs: Vec<Token> = Vec::new();
     let mut rhs: Vec<Token> = Vec::new();

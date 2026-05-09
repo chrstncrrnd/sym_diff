@@ -4,7 +4,7 @@ use crate::functions::Func;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Token {
-    Var, // TODO: add functions
+    Var,
     Num(f64),
     Plus,
     Minus,
