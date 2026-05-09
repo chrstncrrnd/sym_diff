@@ -182,22 +182,43 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     }
 }
 
+impl Expr {
+    pub fn precedence(&self) -> u8 {
+        match self {
+            Expr::Sum(_, _) | Expr::Sub(_, _) => 1,
+            Expr::Prod(_, _) | Expr::Div(_, _) => 2,
+            Expr::Pow(_, _) => 3,
+            Expr::Num(_) | Expr::Var | Expr::F(_, _) => 4,
+        }
+    }
+}
+
+fn fmt_child(child: &Expr, parent_prec: u8, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    if child.precedence() < parent_prec {
+        write!(f, "({})", child)
+    } else {
+        write!(f, "{}", child)
+    }
+}
+
 impl Display for Expr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let prec = self.precedence();
         match self {
             Expr::Var => write!(f, "x"),
             Expr::Num(n) => write!(f, "{n}"),
-            Expr::Div(a, b) => write!(f, "({a} / {b})"),
-            Expr::Sum(a, b) => write!(f, "({a} + {b})"),
-            Expr::Sub(a, b) => write!(f, "({a} - {b})"),
-            Expr::Pow(a, b) => write!(f, "({a} ** {b})"),
+            Expr::Div(a, b) => { fmt_child(a, prec, f)?; write!(f, " / ")?; fmt_child(b, prec + 1, f) },
+            Expr::Sum(a, b) => { fmt_child(a, prec, f)?; write!(f, " + ")?; fmt_child(b, prec, f) },
+            Expr::Sub(a, b) => { fmt_child(a, prec, f)?; write!(f, " - ")?; fmt_child(b, prec + 1, f) },
+            Expr::Pow(a, b) => { fmt_child(a, prec + 1, f)?; write!(f, " ** ")?; fmt_child(b, prec, f) },
             Expr::Prod(a, b) => {
                 if let Expr::Num(first) = **a
                     && let Expr::Num(second) = **b
                 {
-                    write!(f, "({first} * {second})")
+                    write!(f, "{first} * {second}")
                 } else {
-                    write!(f, "({a}{b})")
+                    fmt_child(a, prec, f)?;
+                    fmt_child(b, prec, f)
                 }
             }
             Expr::F(func, arg) => {

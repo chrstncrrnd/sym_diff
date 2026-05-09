@@ -21,7 +21,7 @@ fn main() {
         print!("Parsed expression correctly as: ");
         println!("View: {}", oki);
         println!("DebugView: {:?}", oki);
-        let diffed = diff(oki).unwrap();
+        let diffed = diff(oki.clone()).unwrap();
         println!("Diff: {}", diffed);
         let simplified = simplify(diffed);
         println!("Simplified: {}", simplified);
