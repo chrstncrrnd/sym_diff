@@ -1,6 +1,6 @@
 use std::io;
 
-use crate::{diff::diff, parser::parse, tokenizer::Lexer};
+use crate::{diff::diff, parser::parse, simpl::simplify, tokenizer::Lexer};
 
 mod diff;
 mod functions;
@@ -23,6 +23,8 @@ fn main() {
         println!("DebugView: {:?}", oki);
         let diffed = diff(oki).unwrap();
         println!("Diff: {}", diffed);
+        let simplified = simplify(diffed);
+        println!("Simplified: {}", simplified);
     } else {
         eprint!("Recieved an error: ");
         eprintln!("{}", res.err().unwrap());

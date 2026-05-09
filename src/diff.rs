@@ -38,13 +38,15 @@ fn pow_rule(expr: Expr) -> Option<Expr> {
     if let Expr::Pow(base, exp) = expr
         && let Expr::Num(p) = *exp
         && let Some(u_prime) = diff(*base.clone()) {
-            return Some(Expr::Prod(
+            let ret = Some(Expr::Prod(
                 Box::new(Expr::Num(p)),
                 Box::new(Expr::Prod(
                     Box::new(u_prime),
                     Box::new(Expr::Pow(Box::new(*base), Box::new(Expr::Num(p - 1.0)))),
                 )),
             ));
+            println!("{:?}", ret);
+            return ret;
         }
     None
 }
