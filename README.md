@@ -4,6 +4,17 @@
 A simple rust program that symbolically differentiates a given expression.
 
 
+# Usage
+In order to compile/run this program you must have [rust](https://rust-lang.org) installed.
+
+Running:
+
+```sh
+git clone https://github.com/chrstncrrnd/sym_diff
+cd sym_diff
+cargo run
+```
+
 ## Roadmap:
 - [x] ~Tokenizer~
 - [x] ~Parser~
@@ -11,7 +22,7 @@ A simple rust program that symbolically differentiates a given expression.
     - [x] ~Brackets parsing~
     - [x] ~Implicit multiplication on brackets `10(x+3)`~
 - [x] ~Expression to text~
-    - [ ] In a nice way
+    - [x] ~In a nice way~
 - [x] ~Basic functions~
     - [ ] Parser: allow for `sin 10 x` => `sin(10(x))`
     - [ ] Tokenizer: parse text differently such that `sinx` => `sin(x)` works
