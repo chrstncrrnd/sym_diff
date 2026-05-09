@@ -1,39 +1,36 @@
 use crate::parser::Expr;
 
 pub fn simplify(expr: Expr) -> Expr {
-    println!("Running simplify on expression: {}", expr);
-
-    let (coeff, base_expr) = collect_coeffs(expr.clone());
-    if coeff != 1.0 {
-        return Expr::Prod(Box::new(Expr::Num(coeff)), Box::new(simplify(base_expr)));
-    }
-
-    let (s, base_expr) = collect_sums(expr.clone());
-    if s != 0.0 {
-        return Expr::Sum(Box::new(Expr::Num(s)), Box::new(simplify(base_expr)));
-    }
-
     if let Expr::Prod(a, b) = expr.clone() {
+        let a = Box::new(simplify(*a));
+        let b = Box::new(simplify(*b));
         if let Expr::Num(1.0) = *a {
-            return simplify(*b);
+            return *b;
         }
         if let Expr::Num(1.0) = *b {
-            return simplify(*a);
+            return *a;
         }
         if let Expr::Num(n) = *a
             && let Expr::Num(k) = *b
         {
             return Expr::Num(n * k);
         }
-        return Expr::Prod(Box::new(simplify(*a)), Box::new(simplify(*b)));
+        let expr = Expr::Prod(a.clone(), b.clone());
+        let (coeff, base_expr) = collect_coeffs(expr.clone());
+        if coeff != 1.0 {
+            return Expr::Prod(Box::new(Expr::Num(coeff)), Box::new(simplify(base_expr)));
+        }
+        return expr;
     }
 
     if let Expr::Sum(a, b) = expr.clone() {
+        let a = Box::new(simplify(*a));
+        let b = Box::new(simplify(*b));
         if let Expr::Num(0.0) = *a {
-            return simplify(*b);
+            return *b;
         }
         if let Expr::Num(0.0) = *b {
-            return simplify(*a);
+            return *a;
         }
 
         if let Expr::Num(n) = *a
@@ -41,14 +38,21 @@ pub fn simplify(expr: Expr) -> Expr {
         {
             return Expr::Num(n + k);
         }
-        return Expr::Sum(Box::new(simplify(*a)), Box::new(simplify(*b)));
+        let expr = Expr::Sum(a.clone(), b.clone());
+        let (s, base_expr) = collect_sums(expr.clone());
+        if s != 0.0 {
+            return Expr::Sum(Box::new(Expr::Num(s)), Box::new(simplify(base_expr)));
+        }
+        return expr;
     }
 
     if let Expr::Pow(a, b) = expr.clone() {
+        let a = Box::new(simplify(*a));
+        let b = Box::new(simplify(*b));
         if let Expr::Num(1.0) = *b {
-            return simplify(*a);
+            return *a;
         }
-        return Expr::Pow(Box::new(simplify(*a)), Box::new(simplify(*b)))
+        return Expr::Pow(a, b);
     }
 
     expr
