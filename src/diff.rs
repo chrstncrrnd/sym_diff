@@ -37,8 +37,7 @@ fn const_rule(expr: Expr) -> Option<Expr>{
 fn pow_rule(expr: Expr) -> Option<Expr> {
     if let Expr::Pow(base, exp) = expr
         && let Expr::Num(p) = *exp
-    {
-        if let Some(u_prime) = diff(*base.clone()) {
+        && let Some(u_prime) = diff(*base.clone()) {
             return Some(Expr::Prod(
                 Box::new(Expr::Num(p)),
                 Box::new(Expr::Prod(
@@ -47,7 +46,6 @@ fn pow_rule(expr: Expr) -> Option<Expr> {
                 )),
             ));
         }
-    }
     None
 }
 
