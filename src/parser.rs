@@ -189,7 +189,14 @@ impl Display for Expr {
                 if let Expr::Num(first) = **a
                     && let Expr::Num(second) = **b
                 {
-                    write!(f, "({first} * {second})")
+                    if first == 1.0{
+                        write!(f, "{second}")
+
+                    }else if second == 1.0{
+                        write!(f, "{first}")
+                    }else{
+                        write!(f, "({first} * {second})")
+                    }
                 } else {
                     write!(f, "({a}{b})")
                 }

@@ -6,6 +6,7 @@ mod diff;
 mod functions;
 mod parser;
 mod tokenizer;
+mod simpl;
 
 fn main() {
     let mut buf: String = String::new();
