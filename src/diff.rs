@@ -9,45 +9,45 @@ pub fn diff(expr: Expr) -> Option<Expr> {
         return Some(ret);
     }
 
-    if let Some(ret) = const_rule(expr.clone()){
+    if let Some(ret) = const_rule(expr.clone()) {
         return Some(ret);
     }
 
-    if let Some(ret) = var_rule(expr.clone()){
+    if let Some(ret) = var_rule(expr.clone()) {
         return Some(ret);
     }
     None
 }
 
-fn var_rule(expr: Expr) -> Option<Expr>{
-    if let Expr::Var = expr{
+fn var_rule(expr: Expr) -> Option<Expr> {
+    if let Expr::Var = expr {
         return Some(Expr::Num(1_f64));
     }
     None
 }
 
-fn const_rule(expr: Expr) -> Option<Expr>{
-    if let Expr::Num(_) = expr{
-        return Some(Expr::Num(0_f64))
+fn const_rule(expr: Expr) -> Option<Expr> {
+    if let Expr::Num(_) = expr {
+        return Some(Expr::Num(0_f64));
     }
     None
 }
 
-
 fn pow_rule(expr: Expr) -> Option<Expr> {
     if let Expr::Pow(base, exp) = expr
         && let Expr::Num(p) = *exp
-        && let Some(u_prime) = diff(*base.clone()) {
-            let ret = Some(Expr::Prod(
-                Box::new(Expr::Num(p)),
-                Box::new(Expr::Prod(
-                    Box::new(u_prime),
-                    Box::new(Expr::Pow(Box::new(*base), Box::new(Expr::Num(p - 1.0)))),
-                )),
-            ));
-            println!("{:?}", ret);
-            return ret;
-        }
+        && let Some(u_prime) = diff(*base.clone())
+    {
+        let ret = Some(Expr::Prod(
+            Box::new(Expr::Num(p)),
+            Box::new(Expr::Prod(
+                Box::new(u_prime),
+                Box::new(Expr::Pow(Box::new(*base), Box::new(Expr::Num(p - 1.0)))),
+            )),
+        ));
+        println!("{:?}", ret);
+        return ret;
+    }
     None
 }
 

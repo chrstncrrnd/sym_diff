@@ -5,8 +5,8 @@ use crate::{diff::diff, parser::parse, simpl::simplify, tokenizer::Lexer};
 mod diff;
 mod functions;
 mod parser;
-mod tokenizer;
 mod simpl;
+mod tokenizer;
 
 fn main() {
     let mut buf: String = String::new();
