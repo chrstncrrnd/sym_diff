@@ -22,12 +22,12 @@ A simple rust program that symbolically differentiates a given expression.
     - [ ] Product rule
     - [ ] Quotient rule
     - [ ] Function rules
-- [ ] Simplification of expressions
-    - [ ] `EXPR + 0` => `EXPR`
-    - [ ] `EXPR * 1` => `EXPR`
-    - [ ] `EXPR ** 1` => `EXPR`
-    - [ ] `EXPR ** 0` => `EXPR` (`EXPR` != 0)
-    - [ ] `6(2(EXPR))` => `12(EXPR)`
+- [x] ~Basic simplification of expressions~
+    - [x] ~`EXPR + 0` => `EXPR`~
+    - [x] ~`EXPR * 1` => `EXPR`~
+    - [x] ~`EXPR ** 1` => `EXPR`~
+    - [x] ~`EXPR ** 0` => `EXPR` (`EXPR` != 0)~
+    - [x] ~`6(2(EXPR))` => `12(EXPR)`~
 - [ ] Differentiation strategies
 - [ ] Differentiation DSL
 - [ ] LaTeX support for expression output
