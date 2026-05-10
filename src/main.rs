@@ -7,6 +7,8 @@ mod functions;
 mod parser;
 mod simpl;
 mod tokenizer;
+mod matches;
+
 
 fn main() {
     let mut buf: String = String::new();

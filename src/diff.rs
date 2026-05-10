@@ -1,6 +1,9 @@
 use crate::parser::Expr;
+use crate::gen_rule;
+
 
 pub fn diff(expr: Expr) -> Option<Expr> {
+    gen_rule!(let k: u64, u: Expr; ku => k*d_u);
     if let Some(ret) = linearity_rule(expr.clone()) {
         return Some(ret);
     }
