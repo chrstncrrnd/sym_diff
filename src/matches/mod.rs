@@ -4,7 +4,5 @@
 
 #[macro_export]
 macro_rules! gen_rule {
-    (let $($ident:ident : $type:ty),*; $stmt:stmt => $out:stmt) => {
-
-    };
+    (let $($ident:ident : $type:ty),*; $stmt:stmt => $out:stmt) => {};
 }

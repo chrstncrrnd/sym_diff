@@ -4,11 +4,10 @@ use crate::{diff::diff, parser::parse, simpl::simplify, tokenizer::Lexer};
 
 mod diff;
 mod functions;
+mod matches;
 mod parser;
 mod simpl;
 mod tokenizer;
-mod matches;
-
 
 fn main() {
     let mut buf: String = String::new();

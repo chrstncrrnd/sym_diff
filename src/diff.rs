@@ -1,6 +1,5 @@
-use crate::parser::Expr;
 use crate::gen_rule;
-
+use crate::parser::Expr;
 
 pub fn diff(expr: Expr) -> Option<Expr> {
     gen_rule!(let k: u64, u: Expr; ku => k*d_u);
