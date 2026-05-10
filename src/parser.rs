@@ -207,10 +207,26 @@ impl Display for Expr {
         match self {
             Expr::Var => write!(f, "x"),
             Expr::Num(n) => write!(f, "{n}"),
-            Expr::Div(a, b) => { fmt_child(a, prec, f)?; write!(f, " / ")?; fmt_child(b, prec + 1, f) },
-            Expr::Sum(a, b) => { fmt_child(a, prec, f)?; write!(f, " + ")?; fmt_child(b, prec, f) },
-            Expr::Sub(a, b) => { fmt_child(a, prec, f)?; write!(f, " - ")?; fmt_child(b, prec + 1, f) },
-            Expr::Pow(a, b) => { fmt_child(a, prec + 1, f)?; write!(f, " ** ")?; fmt_child(b, prec, f) },
+            Expr::Div(a, b) => {
+                fmt_child(a, prec, f)?;
+                write!(f, " / ")?;
+                fmt_child(b, prec + 1, f)
+            }
+            Expr::Sum(a, b) => {
+                fmt_child(a, prec, f)?;
+                write!(f, " + ")?;
+                fmt_child(b, prec, f)
+            }
+            Expr::Sub(a, b) => {
+                fmt_child(a, prec, f)?;
+                write!(f, " - ")?;
+                fmt_child(b, prec + 1, f)
+            }
+            Expr::Pow(a, b) => {
+                fmt_child(a, prec + 1, f)?;
+                write!(f, " ** ")?;
+                fmt_child(b, prec, f)
+            }
             Expr::Prod(a, b) => {
                 if let Expr::Num(first) = **a
                     && let Expr::Num(second) = **b

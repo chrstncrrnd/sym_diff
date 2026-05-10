@@ -52,6 +52,9 @@ pub fn simplify(expr: Expr) -> Expr {
         if let Expr::Num(1.0) = *b {
             return *a;
         }
+        if let Expr::Num(0.0) = *b {
+            return Expr::Num(1.0);
+        }
         return Expr::Pow(a, b);
     }
 
