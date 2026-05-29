@@ -1,23 +1,16 @@
-use crate::try_match;
+use crate::gen_rule;
 use crate::parser::Expr;
+use crate::try_apply;
+
+gen_rule!(first_rule; Expr::Var => Expr::Num(1.0));
 
 pub fn diff(expr: Expr) -> Option<Expr> {
-    try_match!(let k: u64, u: Expr; ku => k*u');
-    if let Some(ret) = linearity_rule(expr.clone()) {
-        return Some(ret);
-    }
+    try_apply!(first_rule, expr);
+    //try_apply!(linearity_rule, expr);
+    //try_apply!(pow_rule, expr);
+    //try_apply!(const_rule, expr);
+    //try_apply!(var_rule, expr);
 
-    if let Some(ret) = pow_rule(expr.clone()) {
-        return Some(ret);
-    }
-
-    if let Some(ret) = const_rule(expr.clone()) {
-        return Some(ret);
-    }
-
-    if let Some(ret) = var_rule(expr.clone()) {
-        return Some(ret);
-    }
     None
 }
 
