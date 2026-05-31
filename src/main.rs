@@ -24,6 +24,7 @@ fn main() {
         println!("DebugView: {:?}", oki);
         let diffed = diff(oki.clone()).unwrap();
         println!("Diff: {}", diffed);
+        println!("Diff DebugView: {:?}", diffed);
         let simplified = simplify(diffed);
         println!("Simplified: {}", simplified);
         println!("Simplified DebugView: {:?}", simplified);

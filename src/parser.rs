@@ -109,17 +109,11 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         };
     }
 
-    if *toks.first().unwrap() == Token::Minus{
+    if *toks.first().unwrap() == Token::Minus {
         let rhs = parse_at_lvl(toks.clone().split_off(1), level)?;
 
-        return Ok(
-            Expr::Prod(
-                Box::new(Expr::Num(-1.0)),
-                Box::new(rhs)
-                )
-        )
+        return Ok(Expr::Prod(Box::new(Expr::Num(-1.0)), Box::new(rhs)));
     }
-
 
     if TOK_PRECENDENCE[level - 1] == *toks.first().unwrap()
         || TOK_PRECENDENCE[level - 1] == *toks.last().unwrap()
@@ -240,14 +234,13 @@ impl Display for Expr {
                 fmt_child(b, prec, f)
             }
             Expr::Prod(a, b) => {
-                if let Expr::Num(-1.0) = **a{
+                if let Expr::Num(-1.0) = **a {
                     write!(f, "-{b}")
                 } else if let Expr::Num(first) = **a
                     && let Expr::Num(second) = **b
                 {
                     write!(f, "{first} * {second}")
-                }
-                else {
+                } else {
                     fmt_child(a, prec, f)?;
                     fmt_child(b, prec, f)
                 }

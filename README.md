@@ -37,7 +37,7 @@ cargo run
         - [x] ~Sin~
         - [x] ~Cos~
         - [ ] Tan
-        - [ ] Log
+        - [x] ~Log~
 - [x] ~Basic simplification of expressions~
     - [x] ~`EXPR + 0` => `EXPR`~
     - [x] ~`EXPR * 1` => `EXPR`~

@@ -40,6 +40,12 @@ macro_rules! try_apply {
     };
 }
 
+#[macro_export]
+macro_rules! try_apply_all {
+    ($( $rule_name:ident ),+ on $expression:ident) => {
+        $(try_apply!($rule_name, $expression));+
+    };
+}
 
 // macros to simplify binary operations
 #[macro_export]

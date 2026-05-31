@@ -1,6 +1,6 @@
-use crate::parser::Expr;
 use crate::functions::Func;
-use crate::{div, gen_rule, pow, prod, sub, sum, try_apply};
+use crate::parser::Expr;
+use crate::{div, gen_rule, pow, prod, sub, sum, try_apply, try_apply_all};
 
 gen_rule!(var_rule; Expr::Var => Expr::Num(1.0));
 
@@ -54,25 +54,35 @@ gen_rule!(quotient_rule; Expr::Div(u, v), Some(u_prime) = diff(*u.clone()), Some
     )
 );
 
-gen_rule!(sine_rule; Expr::F(Func::Sin, arg), Some(arg_prime) = diff(*arg.clone()) => 
+gen_rule!(sine_rule; Expr::F(Func::Sin, arg), Some(arg_prime) = diff(*arg.clone()) =>
     prod!(arg_prime, Expr::F(Func::Cos, arg))
 );
 
-gen_rule!(cosine_rule; Expr::F(Func::Cos, arg), Some(arg_prime) = diff(*arg.clone()) => 
+gen_rule!(cosine_rule; Expr::F(Func::Cos, arg), Some(arg_prime) = diff(*arg.clone()) =>
     prod!(Expr::Num(-1.0), prod!(arg_prime, Expr::F(Func::Sin, arg)))
 );
 
+gen_rule!(log_rule; Expr::F(Func::Log, arg), Some(arg_prime) = diff(*arg.clone()) =>
+    div!(
+        arg_prime,
+        *arg
+    )
+);
+
 pub fn diff(expr: Expr) -> Option<Expr> {
-    try_apply!(var_rule, expr);
-    try_apply!(const_rule, expr);
-    try_apply!(prod_linearity, expr);
-    try_apply!(sum_linearity, expr);
-    try_apply!(pow_rule, expr);
-    try_apply!(sub_linearity, expr);
-    try_apply!(product_rule, expr);
-    try_apply!(quotient_rule, expr);
-    try_apply!(sine_rule, expr);
-    try_apply!(cosine_rule, expr);
+    try_apply_all!(
+        var_rule,
+        const_rule,
+        prod_linearity,
+        sum_linearity,
+        pow_rule,
+        sub_linearity,
+        product_rule,
+        quotient_rule,
+        sine_rule,
+        cosine_rule,
+        log_rule
+        on expr);
     None
 }
 
