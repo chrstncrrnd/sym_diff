@@ -1,7 +1,8 @@
 # Rust Symbolic Differentiation 
 
 
-A simple rust program that symbolically differentiates a given expression.
+A simple rust program that symbolically differentiates a given expression. 
+Rules are generated and applied using macros, read docs in `rule_gen.rs` for more information.
 
 
 # Usage

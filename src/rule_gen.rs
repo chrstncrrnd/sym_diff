@@ -1,3 +1,9 @@
+
+
+/// # Rule generation
+/// usage: `gen_rule!(rule_name, precondition, consequent)`
+/// generates a function named `rule_name` which takes an expression as an argument, 
+/// if it matches `precondition` it produces `consequent`
 #[macro_export]
 macro_rules! gen_rule {
     // @no_some means that the macro caller handles if optionalness of the return value
@@ -31,6 +37,9 @@ macro_rules! gen_rule {
     };
 }
 
+
+/// Tries to match an expression to a rule and returns the return value of said expression
+/// if it is not None
 #[macro_export]
 macro_rules! try_apply {
     ($rule_name:ident, $expression:ident) => {
@@ -40,6 +49,9 @@ macro_rules! try_apply {
     };
 }
 
+
+/// A wrapper around try_apply!(). Takes a list of funcitons and expands try_apply! for each of them
+/// on the given expression
 #[macro_export]
 macro_rules! try_apply_all {
     ($( $rule_name:ident ),+ on $expression:ident) => {
