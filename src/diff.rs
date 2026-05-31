@@ -1,10 +1,10 @@
-use crate::{bin_op, gen_rule};
+use crate::gen_rule;
 use crate::parser::Expr;
 use crate::try_apply;
 
 gen_rule!(var_rule; Expr::Var => Expr::Num(1.0));
 gen_rule!(const_rule; Expr::Num(_) => Expr::Num(0_f64));
-gen_rule!(prod_linearity; Expr::Prod(ea, eb), Expr::Num(k) = *ea => {
+gen_rule!(prod_linearity; Expr::Prod(ea, eb), Expr::Num(k) = *ea => @no_some{
         if let Some(rhs) = diff(*eb) {
             return Some(Expr::Prod(Box::new(Expr::Num(k)), Box::new(rhs)));
         } else {

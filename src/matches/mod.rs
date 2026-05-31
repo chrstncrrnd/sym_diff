@@ -4,6 +4,13 @@
 
 #[macro_export]
 macro_rules! gen_rule {
+    ($rule_name:ident; $head_pat:pat $(, $p:pat = $e:expr )* => @no_some $out_pat:expr) => {
+        fn $rule_name(expr: Expr) -> Option<Expr> {
+            gen_rule!(@nest let $head_pat = expr $(, let $p = $e )* => return $out_pat);
+            None
+        }
+    };
+
     ($rule_name:ident; $head_pat:pat $(, $p:pat = $e:expr )* => $out_pat:expr) => {
         fn $rule_name(expr: Expr) -> Option<Expr> {
             gen_rule!(@nest let $head_pat = expr $(, let $p = $e )* => return Some($out_pat));
