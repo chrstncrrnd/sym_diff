@@ -1,7 +1,4 @@
-// Interface:
-// try_match!(expression, k: num, u: expr; Prod(k, u) => Prod(k, diff(u)))
-//     => matches Prod(Num, Expr) => Prod(Num, diff(Expr))
-
+// matches
 #[macro_export]
 macro_rules! gen_rule {
     ($rule_name:ident; $head_pat:pat $(, $p:pat = $e:expr )* => @no_some $out_pat:expr) => {
@@ -34,10 +31,8 @@ macro_rules! gen_rule {
 #[macro_export]
 macro_rules! try_apply {
     ($rule_name:ident, $expression:ident) => {
-        if let Some(ret) = $rule_name($expression.clone()){
+        if let Some(ret) = $rule_name($expression.clone()) {
             return Some(ret);
         }
-    }
+    };
 }
-
-
