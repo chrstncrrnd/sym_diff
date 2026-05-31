@@ -1,8 +1,8 @@
 # Rust Symbolic Differentiation 
 
 
-A simple rust program that symbolically differentiates a given expression. 
-Rules are generated and applied using macros, read docs in `rule_gen.rs` for more information.
+A simple rust program that symbolically differentiates a given expression. This is primarily
+a meta-programming exercise since rules are generated and applied using macros, read docs in `rule_gen.rs` for more information.
 
 
 # Usage
@@ -34,7 +34,7 @@ cargo run
     - [x] ~Constants~
     - [x] ~Product rule~
     - [x] ~Quotient rule~
-    - [ ] Function rules
+    - [x] ~Function rules~
         - [x] ~Sin~
         - [x] ~Cos~
         - [x] ~Tan~
@@ -55,6 +55,7 @@ cargo run
 - [ ] Add tests
 - [ ] Advanced simplification of expressions:
     - [ ] Trigonometric simplifications
+    - [ ] Division using GCD (not just of numbers though)
 
 ## Errors to fix:
 - [x] ~There should be a syntax error for `10 x *` (missing operand)~
