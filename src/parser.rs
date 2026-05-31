@@ -232,7 +232,8 @@ impl Display for Expr {
                     && let Expr::Num(second) = **b
                 {
                     write!(f, "{first} * {second}")
-                } else {
+                }
+                else {
                     fmt_child(a, prec, f)?;
                     fmt_child(b, prec, f)
                 }

@@ -17,6 +17,9 @@ pub fn simplify(expr: Expr) -> Expr {
         }
         let expr = Expr::Prod(a.clone(), b.clone());
         let (coeff, base_expr) = collect_coeffs(expr.clone());
+        if coeff == 0.0{
+            return Expr::Num(0_f64);
+        }
         if coeff != 1.0 {
             return Expr::Prod(Box::new(Expr::Num(coeff)), Box::new(simplify(base_expr)));
         }
@@ -53,6 +56,9 @@ pub fn simplify(expr: Expr) -> Expr {
             return *a;
         }
         if let Expr::Num(0.0) = *b {
+            if let Expr::Num(0.0) = *a{
+                panic!("Error: 0**0");
+            }
             return Expr::Num(1.0);
         }
         return Expr::Pow(a, b);
