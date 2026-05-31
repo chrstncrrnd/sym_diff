@@ -23,7 +23,7 @@ pub fn simplify(expr: Expr) -> Expr {
         if coeff != 1.0 {
             return Expr::Prod(Box::new(Expr::Num(coeff)), Box::new(simplify(base_expr)));
         }
-        return expr;
+        return base_expr;
     }
 
     if let Expr::Sum(a, b) = expr.clone() {

@@ -240,7 +240,9 @@ impl Display for Expr {
                 fmt_child(b, prec, f)
             }
             Expr::Prod(a, b) => {
-                if let Expr::Num(first) = **a
+                if let Expr::Num(-1.0) = **a{
+                    write!(f, "-{b}")
+                } else if let Expr::Num(first) = **a
                     && let Expr::Num(second) = **b
                 {
                     write!(f, "{first} * {second}")
