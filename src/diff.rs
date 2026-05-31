@@ -1,4 +1,5 @@
 use crate::parser::Expr;
+use crate::functions::Func;
 use crate::{div, gen_rule, pow, prod, sub, sum, try_apply};
 
 gen_rule!(var_rule; Expr::Var => Expr::Num(1.0));
@@ -53,6 +54,10 @@ gen_rule!(quotient_rule; Expr::Div(u, v), Some(u_prime) = diff(*u.clone()), Some
     )
 );
 
+gen_rule!(sine_rule; Expr::F(Func::Sin, arg), Some(arg_prime) = diff(*arg.clone()) => 
+    prod!(arg_prime, Expr::F(Func::Cos, arg))
+);
+
 pub fn diff(expr: Expr) -> Option<Expr> {
     try_apply!(var_rule, expr);
     try_apply!(const_rule, expr);
@@ -62,6 +67,7 @@ pub fn diff(expr: Expr) -> Option<Expr> {
     try_apply!(sub_linearity, expr);
     try_apply!(product_rule, expr);
     try_apply!(quotient_rule, expr);
+    try_apply!(sine_rule, expr);
     None
 }
 
