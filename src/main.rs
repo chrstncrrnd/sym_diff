@@ -26,6 +26,7 @@ fn main() {
         println!("Diff: {}", diffed);
         let simplified = simplify(diffed);
         println!("Simplified: {}", simplified);
+        println!("Simplified DebugView: {:?}", simplified);
     } else {
         eprint!("Recieved an error: ");
         eprintln!("{}", res.err().unwrap());

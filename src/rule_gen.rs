@@ -66,7 +66,7 @@ macro_rules! prod {
 #[macro_export]
 macro_rules! pow {
     ($lhs:expr, $rhs:expr) => {
-        Expr::Prod(Box::new($lhs), Box::new($rhs))
+        Expr::Pow(Box::new($lhs), Box::new($rhs))
     };
 }
 
