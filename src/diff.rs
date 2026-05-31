@@ -18,12 +18,10 @@ gen_rule!(pow_rule; Expr::Pow(base, exp), Expr::Num(p) = *exp, Some(u_prime) = d
     =>
     prod!(
         Expr::Num(p),
-        prod!(
-            u_prime,
-            pow!(
-                *base,
-                Expr::Num(p-1.0)
-            )
+        u_prime,
+        pow!(
+            *base,
+            Expr::Num(p-1.0)
         )
     )
 );
@@ -59,13 +57,54 @@ gen_rule!(sine_rule; Expr::F(Func::Sin, arg), Some(arg_prime) = diff(*arg.clone(
 );
 
 gen_rule!(cosine_rule; Expr::F(Func::Cos, arg), Some(arg_prime) = diff(*arg.clone()) =>
-    prod!(Expr::Num(-1.0), prod!(arg_prime, Expr::F(Func::Sin, arg)))
+    prod!(Expr::Num(-1.0), arg_prime, Expr::F(Func::Sin, arg))
 );
 
 gen_rule!(log_rule; Expr::F(Func::Log, arg), Some(arg_prime) = diff(*arg.clone()) =>
     div!(
         arg_prime,
         *arg
+    )
+);
+
+gen_rule!(tan_rule; Expr::F(Func::Tan, arg), Some(arg_prime) = diff(*arg.clone()) => 
+    prod!(
+        arg_prime,
+        pow!(
+            Expr::F(Func::Sec, arg.clone()),
+            Expr::Num(2.0)
+        )
+    )
+);
+
+
+gen_rule!(sec_rule; Expr::F(Func::Sec, arg), Some(arg_prime) = diff(*arg.clone()) => 
+    prod!(
+        arg_prime,
+        Expr::F(Func::Sec, arg.clone()),
+        Expr::F(Func::Tan, arg.clone())
+    )
+);
+
+
+gen_rule!(cosec_rule; Expr::F(Func::Cosec, arg), Some(arg_prime) = diff(*arg.clone()) => 
+    prod!(
+        Expr::Num(-1.0),
+        arg_prime,
+        Expr::F(Func::Cosec, arg.clone()),
+        Expr::F(Func::Cotan, arg.clone())
+    )
+
+);
+
+gen_rule!(cotan_rule; Expr::F(Func::Cotan, arg), Some(arg_prime) = diff(*arg.clone()) =>
+    prod!(
+        Expr::Num(-1.0),
+        arg_prime,
+        pow!(
+            Expr::F(Func::Cosec, arg),
+            Expr::Num(2.0)
+        )
     )
 );
 
@@ -81,63 +120,12 @@ pub fn diff(expr: Expr) -> Option<Expr> {
         quotient_rule,
         sine_rule,
         cosine_rule,
-        log_rule
+        log_rule,
+        tan_rule,
+        sec_rule,
+        cosec_rule,
+        cotan_rule
         on expr);
     None
 }
 
-//fn var_rule(expr: Expr) -> Option<Expr> {
-//    if let Expr::Var = expr {
-//        return Some(Expr::Num(1_f64));
-//    }
-//    None
-//}
-//
-//fn const_rule(expr: Expr) -> Option<Expr> {
-//    if let Expr::Num(_) = expr {
-//        return Some(Expr::Num(0_f64));
-//    }
-//    None
-//}
-//
-//fn pow_rule(expr: Expr) -> Option<Expr> {
-//    if let Expr::Pow(base, exp) = expr
-//        && let Expr::Num(p) = *exp
-//        && let Some(u_prime) = diff(*base.clone())
-//    {
-//        let ret = Some(Expr::Prod(
-//            Box::new(Expr::Num(p)),
-//            Box::new(Expr::Prod(
-//                Box::new(u_prime),
-//                Box::new(Expr::Pow(Box::new(*base), Box::new(Expr::Num(p - 1.0)))),
-//            )),
-//        ));
-//        println!("{:?}", ret);
-//        return ret;
-//    }
-//    None
-//}
-
-//fn linearity_rule(expr: Expr) -> Option<Expr> {
-//    if let Expr::Prod(ea, eb) = expr.clone()
-//        && let Expr::Num(k) = *ea
-//    {
-//        if let Some(rhs) = diff(*eb) {
-//            return Some(Expr::Prod(Box::new(Expr::Num(k)), Box::new(rhs)));
-//        } else {
-//            return None;
-//        }
-//    }
-//
-//    if let Expr::Sum(ea, eb) = expr {
-//        if let Some(lhs) = diff(*ea)
-//            && let Some(rhs) = diff(*eb)
-//        {
-//            return Some(Expr::Sum(Box::new(lhs), Box::new(rhs)));
-//        } else {
-//            return None;
-//        }
-//    }
-//
-//    None
-//}

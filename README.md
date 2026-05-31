@@ -36,7 +36,10 @@ cargo run
     - [ ] Function rules
         - [x] ~Sin~
         - [x] ~Cos~
-        - [ ] Tan
+        - [x] ~Tan~
+        - [x] ~Sec~
+        - [x] ~Cosec~
+        - [x] ~Cotan~
         - [x] ~Log~
 - [x] ~Basic simplification of expressions~
     - [x] ~`EXPR + 0` => `EXPR`~
@@ -49,6 +52,8 @@ cargo run
 - [ ] LaTeX support for expression output
 - [ ] LaTeX support for expression input
 - [ ] Add tests
+- [ ] Advanced simplification of expressions:
+    - [ ] Trigonometric simplifications
 
 ## Errors to fix:
 - [x] ~There should be a syntax error for `10 x *` (missing operand)~
