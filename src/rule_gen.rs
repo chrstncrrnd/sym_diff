@@ -76,10 +76,6 @@ macro_rules! sub {
 
 #[macro_export]
 macro_rules! prod {
-    ($lhs:expr, $rhs:expr) => {
-        Expr::Prod(Box::new($lhs), Box::new($rhs))
-    };
-
     ($lhs:expr, $( $rhs:expr ),+) => {
         Expr::Prod(Box::new($lhs),
             Box::new(prod!($( $rhs ),+))
