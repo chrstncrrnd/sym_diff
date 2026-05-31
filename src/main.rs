@@ -4,8 +4,8 @@ use crate::{diff::diff, parser::parse, simpl::simplify, tokenizer::Lexer};
 
 mod diff;
 mod functions;
-mod rule_gen;
 mod parser;
+mod rule_gen;
 mod simpl;
 mod tokenizer;
 

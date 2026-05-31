@@ -30,8 +30,8 @@ cargo run
     - [x] ~Power rule~
     - [x] ~Linearity~
     - [x] ~Constants~
-    - [ ] Product rule
-    - [ ] Quotient rule
+    - [x] ~Product rule~
+    - [x] ~Quotient rule~
     - [ ] Function rules
 - [x] ~Basic simplification of expressions~
     - [x] ~`EXPR + 0` => `EXPR`~
@@ -40,7 +40,7 @@ cargo run
     - [x] ~`EXPR ** 0` => `EXPR` (`EXPR` != 0)~
     - [x] ~`6(2(EXPR))` => `12(EXPR)`~
 - [ ] Differentiation strategies
-- [ ] Differentiation DSL
+- [x] ~Differentiation macros~
 - [ ] LaTeX support for expression output
 - [ ] LaTeX support for expression input
 - [ ] Add tests
