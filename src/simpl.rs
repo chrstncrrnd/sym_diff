@@ -1,7 +1,14 @@
 use crate::parser::Expr;
 
 pub fn simplify(expr: Expr) -> Expr {
-    dbg!("Simplify: ", expr.clone());
+    // dbg!("Simplify: ", expr.clone());
+    if let Expr::Div(a, b) = expr.clone(){
+        let a = Box::new(simplify(*a));
+        let b = Box::new(simplify(*b));
+        return Expr::Div(a, b);
+    }
+
+
     if let Expr::Prod(a, b) = expr.clone() {
         let a = Box::new(simplify(*a));
         let b = Box::new(simplify(*b));
@@ -81,7 +88,7 @@ pub fn simplify(expr: Expr) -> Expr {
 }
 
 fn collect_coeffs(expr: Expr) -> (f64, Expr) {
-    dbg!("Collect coeffs: ", expr.clone());
+    // dbg!("Collect coeffs: ", expr.clone());
     if let Expr::Prod(lhs, rhs) = expr.clone() {
         if let Expr::Num(k) = *lhs {
             let mut ret = collect_coeffs(*rhs);
@@ -98,7 +105,7 @@ fn collect_coeffs(expr: Expr) -> (f64, Expr) {
 }
 
 fn collect_sums(expr: Expr) -> (f64, Expr) {
-    dbg!("Collect sums: ", expr.clone());
+    // dbg!("Collect sums: ", expr.clone());
     if let Expr::Sum(lhs, rhs) = expr.clone() {
         if let Expr::Num(k) = *lhs {
             let mut ret = collect_sums(*rhs);
