@@ -58,6 +58,10 @@ gen_rule!(sine_rule; Expr::F(Func::Sin, arg), Some(arg_prime) = diff(*arg.clone(
     prod!(arg_prime, Expr::F(Func::Cos, arg))
 );
 
+gen_rule!(cosine_rule; Expr::F(Func::Cos, arg), Some(arg_prime) = diff(*arg.clone()) => 
+    prod!(Expr::Num(-1.0), prod!(arg_prime, Expr::F(Func::Sin, arg)))
+);
+
 pub fn diff(expr: Expr) -> Option<Expr> {
     try_apply!(var_rule, expr);
     try_apply!(const_rule, expr);
@@ -68,6 +72,7 @@ pub fn diff(expr: Expr) -> Option<Expr> {
     try_apply!(product_rule, expr);
     try_apply!(quotient_rule, expr);
     try_apply!(sine_rule, expr);
+    try_apply!(cosine_rule, expr);
     None
 }
 

@@ -23,6 +23,7 @@ cargo run
     - [x] ~Implicit multiplication on brackets `10(x+3)`~
 - [x] ~Expression to text~
     - [x] ~In a nice way~
+    - [ ] Update product output since `10x * 2 => 10x2` right now.
 - [x] ~Basic functions~
     - [ ] Parser: allow for `sin 10 x` => `sin(10(x))`
     - [ ] Tokenizer: parse text differently such that `sinx` => `sin(x)` works
@@ -33,6 +34,10 @@ cargo run
     - [x] ~Product rule~
     - [x] ~Quotient rule~
     - [ ] Function rules
+        - [x] ~Sin~
+        - [x] ~Cos~
+        - [ ] Tan
+        - [ ] Log
 - [x] ~Basic simplification of expressions~
     - [x] ~`EXPR + 0` => `EXPR`~
     - [x] ~`EXPR * 1` => `EXPR`~
