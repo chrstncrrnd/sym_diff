@@ -1,24 +1,31 @@
-use crate::gen_rule;
+use crate::{sum, prod, pow, gen_rule, try_apply, sub};
 use crate::parser::Expr;
-use crate::try_apply;
 
 gen_rule!(var_rule; Expr::Var => Expr::Num(1.0));
 
 gen_rule!(const_rule; Expr::Num(_) => Expr::Num(0_f64));
 
 gen_rule!(prod_linearity; Expr::Prod(ea, eb), Expr::Num(k) = *ea => 
-    @no_some diff(*eb).map(|rhs| Expr::Prod(Box::new(Expr::Num(k)), Box::new(rhs)))
+    @no_some diff(*eb).map(|rhs| prod!(rhs, Expr::Num(k)))
 );
-gen_rule!(sum_linearity; Expr::Sum(ea, eb), Some(lhs) = diff(*ea), Some(rhs) = diff(*eb) =>  Expr::Sum(Box::new(lhs), Box::new(rhs)));
+
+gen_rule!(sum_linearity; Expr::Sum(ea, eb), Some(lhs) = diff(*ea), Some(rhs) = diff(*eb) => sum!(lhs, rhs));
+
+gen_rule!(sub_linearity; Expr::Sub(ea, eb), Some(lhs) = diff(*ea), Some(rhs) = diff(*eb) => sub!(lhs, rhs));
 
 gen_rule!(pow_rule; Expr::Pow(base, exp), Expr::Num(p) = *exp, Some(u_prime) = diff(*base.clone())
-    => Expr::Prod(
-            Box::new(Expr::Num(p)),
-            Box::new(Expr::Prod(
-                Box::new(u_prime),
-                Box::new(Expr::Pow(Box::new(*base), Box::new(Expr::Num(p - 1.0)))),
-            )),
-        ));
+    =>
+    prod!(
+        Expr::Num(p),
+        prod!(
+            u_prime,
+            pow!(
+                *base,
+                Expr::Num(p-1.0)
+            )
+        )
+    )
+);
 
 
 pub fn diff(expr: Expr) -> Option<Expr> {
@@ -27,9 +34,7 @@ pub fn diff(expr: Expr) -> Option<Expr> {
     try_apply!(prod_linearity, expr);
     try_apply!(sum_linearity, expr);
     try_apply!(pow_rule, expr);
-    //try_apply!(const_rule, expr);
-    //try_apply!(var_rule, expr);
-
+    try_apply!(sub_linearity, expr);
     None
 }
 

@@ -36,3 +36,44 @@ macro_rules! try_apply {
         }
     };
 }
+
+#[macro_export]
+macro_rules! sum {
+    ($lhs:expr, $rhs:expr) => {
+        Expr::Sum(
+            Box::new($lhs),
+            Box::new($rhs)
+        )
+    }
+}
+
+#[macro_export]
+macro_rules! sub {
+    ($lhs:expr, $rhs:expr) => {
+        Expr::Sub (
+            Box::new($lhs),
+            Box::new($rhs)
+        )
+    }
+}
+
+
+#[macro_export]
+macro_rules! prod {
+    ($lhs:expr, $rhs:expr) => {
+        Expr::Prod(
+            Box::new($lhs),
+            Box::new($rhs)
+        )
+    }
+}
+
+#[macro_export]
+macro_rules! pow {
+    ($lhs:expr, $rhs:expr) => {
+        Expr::Prod(
+            Box::new($lhs),
+            Box::new($rhs)
+        )
+    }
+}
