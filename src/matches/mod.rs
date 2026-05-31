@@ -4,16 +4,23 @@
 
 #[macro_export]
 macro_rules! gen_rule {
-    ($rule_name:ident; $pat1:pat => $pat2:expr) => {
+    ($rule_name:ident; $head_pat:pat $(, $p:pat = $e:expr )* => $out_pat:expr) => {
         fn $rule_name(expr: Expr) -> Option<Expr> {
-            if let $pat1 = expr
-            {
-                return Some($pat2)
-            }
+            gen_rule!(@nest let $head_pat = expr $(, let $p = $e )* => return Some($out_pat));
             None
         }
+    };
 
+    (@nest let $head_pat:pat = $head_expr:expr, $( let $tail_pat:pat = $tail_e:expr),* => $out_pat:expr) => {
+        if let $head_pat = $head_expr {
+            gen_rule!(@nest $( let $tail_pat = $tail_e),* => $out_pat)
+        }
+    };
 
+    (@nest let $last_pat:pat = $last_e:expr => $body:expr) => {
+        if let $last_pat = $last_e {
+            $body;
+        }
     };
 }
 
@@ -27,9 +34,3 @@ macro_rules! try_apply {
 }
 
 
-// if _matches_expr(input, ku)
-macro_rules! _matches_expr {
-    ($subject:stmt, $pattern:ident) => {
-        
-    };
-}
