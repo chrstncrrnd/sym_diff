@@ -6,7 +6,7 @@ use crate::{
     tokenizer::{Lexer, Token},
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Expr {
     Num(f64),
     Var,

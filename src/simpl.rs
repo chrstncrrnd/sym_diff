@@ -1,7 +1,24 @@
 use std::rc::Rc;
-use crate::parser::Expr;
+use crate::{gen_rule, parser::Expr};
 
-pub fn simplify(expr: Expr) -> Expr {
+pub fn simplify(expr: Expr) -> Expr{
+    // iterate until we reach a fixed point
+    let mut expr = expr;
+    let mut prev: Option<Expr> = None;
+    // TODO: memory optimizations here
+    loop{
+        if let Some(p) = prev && p == expr{
+            break;
+        }
+        prev = Some(expr.clone());
+        expr = simpl(expr);
+    }
+    todo!()
+}
+
+
+// internal simplification function
+fn simpl(expr: Expr) -> Expr {
     // dbg!("Simplify: ", expr.clone());
     if let Expr::Div(a, b) = expr.clone(){
         let a = Rc::new(simplify((*a).clone()));

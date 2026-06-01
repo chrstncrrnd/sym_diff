@@ -62,9 +62,15 @@ macro_rules! try_apply_all {
 // macros to simplify binary operations
 #[macro_export]
 macro_rules! sum {
-    ($lhs:expr, $rhs:expr) => {
-        Expr::Sum(Rc::new($lhs), Rc::new($rhs))
+    ($lhs:expr, $( $rhs:expr ),+) => {
+        Expr::Sum(Rc::new($lhs),
+            Rc::new(sum!($( $rhs ),+))
+        )
     };
+
+    ($base:expr) => {
+        $base
+    }
 }
 
 #[macro_export]
