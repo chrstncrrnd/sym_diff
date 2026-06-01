@@ -3,7 +3,6 @@ use crate::parser::Expr;
 use crate::{div, gen_rule, pow, prod, sub, sum, try_apply, try_apply_all};
 use std::rc::Rc;
 
-
 gen_rule!(var_rule; Expr::Var => Expr::Num(1.0));
 
 gen_rule!(const_rule; Expr::Num(_) => Expr::Num(0_f64));
@@ -69,7 +68,7 @@ gen_rule!(log_rule; Expr::F(Func::Log, arg), Some(arg_prime) = diff((*arg).clone
     )
 );
 
-gen_rule!(tan_rule; Expr::F(Func::Tan, arg), Some(arg_prime) = diff((*arg).clone()) => 
+gen_rule!(tan_rule; Expr::F(Func::Tan, arg), Some(arg_prime) = diff((*arg).clone()) =>
     prod!(
         arg_prime,
         pow!(
@@ -79,8 +78,7 @@ gen_rule!(tan_rule; Expr::F(Func::Tan, arg), Some(arg_prime) = diff((*arg).clone
     )
 );
 
-
-gen_rule!(sec_rule; Expr::F(Func::Sec, arg), Some(arg_prime) = diff((*arg).clone()) => 
+gen_rule!(sec_rule; Expr::F(Func::Sec, arg), Some(arg_prime) = diff((*arg).clone()) =>
     prod!(
         arg_prime,
         Expr::F(Func::Sec, arg.clone()),
@@ -88,8 +86,7 @@ gen_rule!(sec_rule; Expr::F(Func::Sec, arg), Some(arg_prime) = diff((*arg).clone
     )
 );
 
-
-gen_rule!(cosec_rule; Expr::F(Func::Cosec, arg), Some(arg_prime) = diff((*arg).clone()) => 
+gen_rule!(cosec_rule; Expr::F(Func::Cosec, arg), Some(arg_prime) = diff((*arg).clone()) =>
     prod!(
         Expr::Num(-1.0),
         arg_prime,
@@ -130,4 +127,3 @@ pub fn diff(expr: Expr) -> Option<Expr> {
         on expr);
     None
 }
-

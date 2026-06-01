@@ -1,5 +1,5 @@
-use std::{fmt::Display, vec};
 use std::rc::Rc;
+use std::{fmt::Display, vec};
 
 use crate::{
     functions::Func,

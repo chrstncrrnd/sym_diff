@@ -22,7 +22,6 @@ impl Display for Func {
             Func::Sec => write!(f, "sec"),
             Func::Cosec => write!(f, "cosec"),
             Func::Cotan => write!(f, "cot"),
-
         }
     }
 }
