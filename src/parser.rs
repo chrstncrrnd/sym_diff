@@ -1,4 +1,5 @@
 use std::{fmt::Display, vec};
+use std::rc::Rc;
 
 use crate::{
     functions::Func,
@@ -9,12 +10,12 @@ use crate::{
 pub enum Expr {
     Num(f64),
     Var,
-    Prod(Box<Expr>, Box<Expr>),
-    Div(Box<Expr>, Box<Expr>),
-    Sum(Box<Expr>, Box<Expr>),
-    Sub(Box<Expr>, Box<Expr>),
-    Pow(Box<Expr>, Box<Expr>),
-    F(Func, Box<Expr>),
+    Prod(Rc<Expr>, Rc<Expr>),
+    Div(Rc<Expr>, Rc<Expr>),
+    Sum(Rc<Expr>, Rc<Expr>),
+    Sub(Rc<Expr>, Rc<Expr>),
+    Pow(Rc<Expr>, Rc<Expr>),
+    F(Func, Rc<Expr>),
 }
 
 // Brackets, powers, Division, Multiplication, addition subtraction
