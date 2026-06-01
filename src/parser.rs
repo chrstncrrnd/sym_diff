@@ -1,4 +1,5 @@
 use std::{fmt::Display, vec};
+use std::rc::Rc;
 
 use crate::{
     functions::Func,
@@ -9,12 +10,12 @@ use crate::{
 pub enum Expr {
     Num(f64),
     Var,
-    Prod(Box<Expr>, Box<Expr>),
-    Div(Box<Expr>, Box<Expr>),
-    Sum(Box<Expr>, Box<Expr>),
-    Sub(Box<Expr>, Box<Expr>),
-    Pow(Box<Expr>, Box<Expr>),
-    F(Func, Box<Expr>),
+    Prod(Rc<Expr>, Rc<Expr>),
+    Div(Rc<Expr>, Rc<Expr>),
+    Sum(Rc<Expr>, Rc<Expr>),
+    Sub(Rc<Expr>, Rc<Expr>),
+    Pow(Rc<Expr>, Rc<Expr>),
+    F(Func, Rc<Expr>),
 }
 
 // Brackets, powers, Division, Multiplication, addition subtraction
@@ -93,7 +94,7 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
             }
             // parse arg of func
             let arg = parse_at_lvl(toks[1..].to_vec(), TOK_PRECENDENCE_COUNT)?;
-            return Ok(Expr::F(*f, Box::new(arg)));
+            return Ok(Expr::F(*f, Rc::new(arg)));
         }
 
         if toks.len() != 1 {
@@ -112,7 +113,7 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
     if *toks.first().unwrap() == Token::Minus {
         let rhs = parse_at_lvl(toks.clone().split_off(1), level)?;
 
-        return Ok(Expr::Prod(Box::new(Expr::Num(-1.0)), Box::new(rhs)));
+        return Ok(Expr::Prod(Rc::new(Expr::Num(-1.0)), Rc::new(rhs)));
     }
 
     if TOK_PRECENDENCE[level - 1] == *toks.first().unwrap()
@@ -173,11 +174,11 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
             && let Ok(rhs_ok) = res_rhs
         {
             match TOK_PRECENDENCE[level - 1] {
-                Token::Mult => Ok(Expr::Prod(Box::new(lhs_ok.clone()), Box::new(rhs_ok))),
-                Token::Div => Ok(Expr::Div(Box::new(lhs_ok.clone()), Box::new(rhs_ok))),
-                Token::Plus => Ok(Expr::Sum(Box::new(lhs_ok.clone()), Box::new(rhs_ok))),
-                Token::Minus => Ok(Expr::Sub(Box::new(lhs_ok.clone()), Box::new(rhs_ok))),
-                Token::Power => Ok(Expr::Pow(Box::new(lhs_ok.clone()), Box::new(rhs_ok))),
+                Token::Mult => Ok(Expr::Prod(Rc::new(lhs_ok.clone()), Rc::new(rhs_ok))),
+                Token::Div => Ok(Expr::Div(Rc::new(lhs_ok.clone()), Rc::new(rhs_ok))),
+                Token::Plus => Ok(Expr::Sum(Rc::new(lhs_ok.clone()), Rc::new(rhs_ok))),
+                Token::Minus => Ok(Expr::Sub(Rc::new(lhs_ok.clone()), Rc::new(rhs_ok))),
+                Token::Power => Ok(Expr::Pow(Rc::new(lhs_ok.clone()), Rc::new(rhs_ok))),
                 _ => Err("Fatal error!".to_string()),
             }
         } else if let Err(lhs_err) = res_lhs {

@@ -1,22 +1,23 @@
+use std::rc::Rc;
 use crate::parser::Expr;
 
 pub fn simplify(expr: Expr) -> Expr {
     // dbg!("Simplify: ", expr.clone());
     if let Expr::Div(a, b) = expr.clone(){
-        let a = Box::new(simplify(*a));
-        let b = Box::new(simplify(*b));
+        let a = Rc::new(simplify((*a).clone()));
+        let b = Rc::new(simplify((*b).clone()));
         return Expr::Div(a, b);
     }
 
 
     if let Expr::Prod(a, b) = expr.clone() {
-        let a = Box::new(simplify(*a));
-        let b = Box::new(simplify(*b));
+        let a = Rc::new(simplify((*a).clone()));
+        let b = Rc::new(simplify((*b).clone()));
         if let Expr::Num(1.0) = *a {
-            return *b;
+            return (*b).clone();
         }
         if let Expr::Num(1.0) = *b {
-            return *a;
+            return (*a).clone();
         }
         if let Expr::Num(n) = *a
             && let Expr::Num(k) = *b
@@ -29,20 +30,20 @@ pub fn simplify(expr: Expr) -> Expr {
             return Expr::Num(0_f64);
         }
         if coeff != 1.0 {
-            return Expr::Prod(Box::new(Expr::Num(coeff)), Box::new(simplify(base_expr)));
+            return Expr::Prod(Rc::new(Expr::Num(coeff)), Rc::new(simplify(base_expr)));
         }
         return base_expr;
     }
 
     if let Expr::Sum(a, b) | Expr::Sub(a, b) = expr.clone() {
         let sub = matches!(expr, Expr::Sub(_, _));
-        let a = Box::new(simplify(*a));
-        let b = Box::new(simplify(*b));
+        let a = Rc::new(simplify((*a).clone()));
+        let b = Rc::new(simplify((*b).clone()));
         if let Expr::Num(0.0) = *a {
-            return *b;
+            return (*b).clone();
         }
         if let Expr::Num(0.0) = *b {
-            return *a;
+            return (*a).clone();
         }
 
         if let Expr::Num(n) = *a
@@ -64,16 +65,16 @@ pub fn simplify(expr: Expr) -> Expr {
         // if our coefficient was non-zero we must sum or sub it
         if s != 0.0 {
             // collect_sums already accounts for subs
-            return Expr::Sum(Box::new(Expr::Num(s)), Box::new(simplify(base_expr)));
+            return Expr::Sum(Rc::new(Expr::Num(s)), Rc::new(simplify(base_expr)));
         }
         return base_expr;
     }
 
     if let Expr::Pow(a, b) = expr.clone() {
-        let a = Box::new(simplify(*a));
-        let b = Box::new(simplify(*b));
+        let a = Rc::new(simplify((*a).clone()));
+        let b = Rc::new(simplify((*b).clone()));
         if let Expr::Num(1.0) = *b {
-            return *a;
+            return (*a).clone();
         }
         if let Expr::Num(0.0) = *b {
             if let Expr::Num(0.0) = *a {
@@ -91,12 +92,12 @@ fn collect_coeffs(expr: Expr) -> (f64, Expr) {
     // dbg!("Collect coeffs: ", expr.clone());
     if let Expr::Prod(lhs, rhs) = expr.clone() {
         if let Expr::Num(k) = *lhs {
-            let mut ret = collect_coeffs(*rhs);
+            let mut ret = collect_coeffs((*rhs).clone());
             ret.0 *= k;
             return ret;
         }
         if let Expr::Num(k) = *rhs {
-            let mut ret = collect_coeffs(*lhs);
+            let mut ret = collect_coeffs((*lhs).clone());
             ret.0 *= k;
             return ret;
         }
@@ -108,12 +109,12 @@ fn collect_sums(expr: Expr) -> (f64, Expr) {
     // dbg!("Collect sums: ", expr.clone());
     if let Expr::Sum(lhs, rhs) = expr.clone() {
         if let Expr::Num(k) = *lhs {
-            let mut ret = collect_sums(*rhs);
+            let mut ret = collect_sums((*rhs).clone());
             ret.0 += k;
             return ret;
         }
         if let Expr::Num(k) = *rhs {
-            let mut ret = collect_sums(*lhs);
+            let mut ret = collect_sums((*lhs).clone());
             ret.0 += k;
             return ret;
         }
@@ -121,12 +122,12 @@ fn collect_sums(expr: Expr) -> (f64, Expr) {
     // same but for sub
     if let Expr::Sub(lhs, rhs) = expr.clone() {
         if let Expr::Num(k) = *lhs {
-            let mut ret = collect_sums(*rhs);
+            let mut ret = collect_sums((*rhs).clone());
             ret.0 -= k;
             return ret;
         }
         if let Expr::Num(k) = *rhs {
-            let mut ret = collect_sums(*lhs);
+            let mut ret = collect_sums((*lhs).clone());
             ret.0 -= k;
             return ret;
         }

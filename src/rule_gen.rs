@@ -63,22 +63,22 @@ macro_rules! try_apply_all {
 #[macro_export]
 macro_rules! sum {
     ($lhs:expr, $rhs:expr) => {
-        Expr::Sum(Box::new($lhs), Box::new($rhs))
+        Expr::Sum(Rc::new($lhs), Rc::new($rhs))
     };
 }
 
 #[macro_export]
 macro_rules! sub {
     ($lhs:expr, $rhs:expr) => {
-        Expr::Sub(Box::new($lhs), Box::new($rhs))
+        Expr::Sub(Rc::new($lhs), Rc::new($rhs))
     };
 }
 
 #[macro_export]
 macro_rules! prod {
     ($lhs:expr, $( $rhs:expr ),+) => {
-        Expr::Prod(Box::new($lhs),
-            Box::new(prod!($( $rhs ),+))
+        Expr::Prod(Rc::new($lhs),
+            Rc::new(prod!($( $rhs ),+))
         )
     };
 
@@ -91,13 +91,13 @@ macro_rules! prod {
 #[macro_export]
 macro_rules! pow {
     ($lhs:expr, $rhs:expr) => {
-        Expr::Pow(Box::new($lhs), Box::new($rhs))
+        Expr::Pow(Rc::new($lhs), Rc::new($rhs))
     };
 }
 
 #[macro_export]
 macro_rules! div {
     ($lhs:expr, $rhs:expr) => {
-        Expr::Div(Box::new($lhs), Box::new($rhs))
+        Expr::Div(Rc::new($lhs), Rc::new($rhs))
     };
 }
