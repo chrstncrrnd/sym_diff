@@ -1,5 +1,5 @@
 use std::rc::Rc;
-use crate::{gen_rule, parser::Expr};
+use crate::parser::Expr;
 
 pub fn simplify(expr: Expr) -> Expr{
     // iterate until we reach a fixed point
