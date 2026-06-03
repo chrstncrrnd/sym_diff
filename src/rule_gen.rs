@@ -104,7 +104,7 @@ macro_rules! try_apply {
 
     (@no_some $rule_name:ident, $expression:ident) => {
         if let Some(ret) = $rule_name($expression.clone()) {
-            eprintln!("Applied: {}", stringify!($rule_name));
+            // eprintln!("Applied: {}", stringify!($rule_name));
             return ret;
         }
     };

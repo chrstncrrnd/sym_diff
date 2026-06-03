@@ -8,7 +8,7 @@ pub fn simplify(expr: Expr) -> Expr {
     let mut prev: Option<Expr> = None;
     // TODO: memory optimizations here
     loop {
-        dbg!(&expr);
+        // dbg!(&expr);
         if let Some(p) = prev
             && p == expr
         {
@@ -160,8 +160,12 @@ fn simpl(expr: Expr) -> Expr {
 
 
 fn collect_sums_wrapper(expr: Expr) -> Option<Expr>{
-    let collected = collect_sums(expr);
-    Some(sum!(Expr::Num(collected.0), collected.1))
+    let collected = collect_sums(expr.clone());
+    if collected.0 == 0.0 && collected.1 == expr {
+        None
+    } else {
+        Some(sum!(Expr::Num(collected.0), collected.1))
+    }
 }
 
 fn collect_sums(expr: Expr) -> (f64, Expr) {
@@ -178,8 +182,12 @@ fn collect_sums(expr: Expr) -> (f64, Expr) {
 }
 
 fn collect_coeffs_wrapper(expr: Expr) -> Option<Expr>{
-    let collected = collect_coeffs(expr);
-    Some(prod!(Expr::Num(collected.0), collected.1))
+    let collected = collect_coeffs(expr.clone());
+    if collected.0 == 1.0 && collected.1 == expr {
+        None
+    } else {
+        Some(prod!(Expr::Num(collected.0), collected.1))
+    }
 }
 
 fn collect_coeffs(expr: Expr) -> (f64, Expr) {
