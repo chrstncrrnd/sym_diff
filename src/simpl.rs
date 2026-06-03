@@ -1,6 +1,6 @@
 use crate::parser::Expr;
+use crate::{div, gen_rule, pow, prod, sub, sum, try_apply, try_apply_all};
 use std::rc::Rc;
-use crate::{gen_rule, try_apply_all, try_apply, sum, sub, prod, div, pow};
 
 pub fn simplify(expr: Expr) -> Expr {
     // iterate until we reach a fixed point
@@ -30,7 +30,6 @@ gen_rule!(sum_ident_right; Expr::Sum(lhs, rhs) | Expr::Sub(lhs, rhs), Expr::Num(
 gen_rule!(sum_elements; Expr::Sum(lhs, rhs), Expr::Num(k) = *lhs, Expr::Num(n) = *rhs => Expr::Num(k + n));
 gen_rule!(sub_elements; Expr::Sub(lhs, rhs), Expr::Num(k) = *lhs, Expr::Num(n) = *rhs => Expr::Num(k - n));
 
-
 // PROD/DIV RULES
 gen_rule!(prod_ident_left; Expr::Prod(lhs, rhs), Expr::Num(k) = *lhs, k == 1.0 
     => simpl((*rhs).clone()));
@@ -50,7 +49,6 @@ gen_rule!(pow_ident; Expr::Pow(lhs, rhs), Expr::Num(k) = *rhs, k == 1.0 => simpl
 gen_rule!(pow_zero_zero; Expr::Pow(lhs, rhs), Expr::Num(k) = *rhs, Expr::Num(n) = *lhs, k == 0.0, n == 0.0 => @no_return panic!("0**0 is undefined!"));
 gen_rule!(pow_zero; Expr::Pow(_, rhs), Expr::Num(k) = *rhs, k == 0.0 => Expr::Num(1.0));
 
-
 // recursion rules
 gen_rule!(sum_recursion; Expr::Sum(a, b) => sum!(simpl((*a).clone()), simpl((*b).clone())));
 gen_rule!(sub_recursion; Expr::Sub(a, b) => sub!(simpl((*a).clone()), simpl((*b).clone())));
@@ -58,8 +56,7 @@ gen_rule!(prod_recursion; Expr::Prod(a, b) => prod!(simpl((*a).clone()), simpl((
 gen_rule!(div_recursion; Expr::Div(a, b) => div!(simpl((*a).clone()), simpl((*b).clone())));
 gen_rule!(pow_recursion; Expr::Pow(a, b) => pow!(simpl((*a).clone()), simpl((*b).clone())));
 
-
-gen_rule![collect_coeffs_left -> Option<(f64, Expr)>; 
+gen_rule![collect_coeffs_left -> Option<(f64, Expr)>;
     Expr::Prod(lhs, rhs),
     Expr::Num(k) = *lhs => @no_return
     {
@@ -69,7 +66,7 @@ gen_rule![collect_coeffs_left -> Option<(f64, Expr)>;
     }
 ];
 
-gen_rule![collect_coeffs_right -> Option<(f64, Expr)>; 
+gen_rule![collect_coeffs_right -> Option<(f64, Expr)>;
     Expr::Prod(lhs, rhs),
     Expr::Num(k) = *rhs => @no_return
     {
@@ -79,7 +76,7 @@ gen_rule![collect_coeffs_right -> Option<(f64, Expr)>;
     }
 ];
 
-gen_rule![collect_sums_left -> Option<(f64, Expr)>; 
+gen_rule![collect_sums_left -> Option<(f64, Expr)>;
     Expr::Sum(lhs, rhs),
     Expr::Num(k) = *lhs => @no_return
     {
@@ -89,7 +86,7 @@ gen_rule![collect_sums_left -> Option<(f64, Expr)>;
     }
 ];
 
-gen_rule![collect_sums_right -> Option<(f64, Expr)>; 
+gen_rule![collect_sums_right -> Option<(f64, Expr)>;
     Expr::Sum(lhs, rhs),
     Expr::Num(k) = *rhs => @no_return
     {
@@ -99,7 +96,7 @@ gen_rule![collect_sums_right -> Option<(f64, Expr)>;
     }
 ];
 
-gen_rule![collect_subs_left -> Option<(f64, Expr)>; 
+gen_rule![collect_subs_left -> Option<(f64, Expr)>;
     Expr::Sub(lhs, rhs),
     Expr::Num(k) = *lhs => @no_return
     {
@@ -110,7 +107,7 @@ gen_rule![collect_subs_left -> Option<(f64, Expr)>;
     }
 ];
 
-gen_rule![collect_subs_right -> Option<(f64, Expr)>; 
+gen_rule![collect_subs_right -> Option<(f64, Expr)>;
     Expr::Sub(lhs, rhs),
     Expr::Num(k) = *rhs => @no_return
     {
@@ -120,14 +117,11 @@ gen_rule![collect_subs_right -> Option<(f64, Expr)>;
     }
 ];
 
-
 gen_rule!(base_num; Expr::Num(k) => Expr::Num(k));
 gen_rule!(base_var; Expr::Var => Expr::Var);
 
-
 // variable rules
 gen_rule!(basic_factoring; Expr::Sum(a, b), Expr::Var = *a, Expr::Var = *b => prod!(Expr::Num(2.0), Expr::Var));
-
 
 // internal simplification function
 fn simpl(expr: Expr) -> Expr {
@@ -164,8 +158,7 @@ fn simpl(expr: Expr) -> Expr {
     expr
 }
 
-
-fn collect_sums_wrapper(expr: Expr) -> Option<Expr>{
+fn collect_sums_wrapper(expr: Expr) -> Option<Expr> {
     let collected = collect_sums(expr.clone());
     if collected.0 == 0.0 && collected.1 == expr {
         None
@@ -187,7 +180,7 @@ fn collect_sums(expr: Expr) -> (f64, Expr) {
     (0.0, expr)
 }
 
-fn collect_coeffs_wrapper(expr: Expr) -> Option<Expr>{
+fn collect_coeffs_wrapper(expr: Expr) -> Option<Expr> {
     let collected = collect_coeffs(expr.clone());
     if collected.0 == 1.0 && collected.1 == expr {
         None

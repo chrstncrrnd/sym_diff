@@ -193,7 +193,7 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         }
     }
     // there is none of the specified operator in this expression
-    else{
+    else {
         parse_at_lvl(toks, level - 1)
     }
 }

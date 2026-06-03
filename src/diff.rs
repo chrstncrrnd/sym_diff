@@ -15,7 +15,6 @@ gen_rule!(prod_linearity_right; Expr::Prod(ea, eb), Expr::Num(k) = *eb =>
     @no_some diff((*ea).clone()).map(|rhs| prod!(rhs, Expr::Num(k)))
 );
 
-
 gen_rule!(sum_linearity; Expr::Sum(ea, eb), Some(lhs) = diff((*ea).clone()), Some(rhs) = diff((*eb).clone()) => sum!(lhs, rhs));
 
 gen_rule!(sub_linearity; Expr::Sub(ea, eb), Some(lhs) = diff((*ea).clone()), Some(rhs) = diff((*eb).clone()) => sub!(lhs, rhs));

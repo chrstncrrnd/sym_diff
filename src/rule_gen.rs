@@ -8,7 +8,7 @@
 /// meanwhile the boolean type has two equals. The first precondition is always of "if-let" type.
 /// ## Example:
 /// `gen_rule!(test_rule; Expr::Sub(a, b), a == b => Expr::Num(0.0));`
-/// In this case, the precondition has the two parts: `Expr::Sub(a, b)` and `a == b`. 
+/// In this case, the precondition has the two parts: `Expr::Sub(a, b)` and `a == b`.
 /// We check that the expression, `expr`, passed into `test_rule(expr)` matches `Expr::Sub(a, b)`
 /// then we check that a and b are equal via `a == b`.
 #[macro_export]
@@ -89,8 +89,6 @@ macro_rules! gen_rule {
         $out_pat;
     };
 }
-
-
 
 /// Tries to match an expression to a rule and returns the return value of said expression
 /// if it is not None
