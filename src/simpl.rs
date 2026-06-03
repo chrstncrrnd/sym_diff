@@ -8,7 +8,7 @@ pub fn simplify(expr: Expr) -> Expr {
     let mut prev: Option<Expr> = None;
     // TODO: memory optimizations here
     loop {
-        // dbg!("One loop", &expr);
+        dbg!(&expr);
         if let Some(p) = prev
             && p == expr
         {
@@ -63,7 +63,7 @@ gen_rule![collect_coeffs_left -> Option<(f64, Expr)>;
     Expr::Prod(lhs, rhs),
     Expr::Num(k) = *lhs => @no_return
     {
-        let mut ret = collect_coeffs((*rhs).clone());
+        let mut ret = collect_coeffs(simpl((*rhs).clone()));
         ret.0 *= k;
         return Some(ret);
     }
@@ -73,8 +73,49 @@ gen_rule![collect_coeffs_right -> Option<(f64, Expr)>;
     Expr::Prod(lhs, rhs),
     Expr::Num(k) = *rhs => @no_return
     {
-        let mut ret = collect_coeffs((*lhs).clone());
+        let mut ret = collect_coeffs(simpl((*lhs).clone()));
         ret.0 *= k;
+        return Some(ret);
+    }
+];
+
+gen_rule![collect_sums_left -> Option<(f64, Expr)>; 
+    Expr::Sum(lhs, rhs),
+    Expr::Num(k) = *lhs => @no_return
+    {
+        let mut ret = collect_sums(simpl((*rhs).clone()));
+        ret.0 += k;
+        return Some(ret);
+    }
+];
+
+gen_rule![collect_sums_right -> Option<(f64, Expr)>; 
+    Expr::Sum(lhs, rhs),
+    Expr::Num(k) = *rhs => @no_return
+    {
+        let mut ret = collect_sums(simpl((*lhs).clone()));
+        ret.0 += k;
+        return Some(ret);
+    }
+];
+
+gen_rule![collect_subs_left -> Option<(f64, Expr)>; 
+    Expr::Sub(lhs, rhs),
+    Expr::Num(k) = *lhs => @no_return
+    {
+        let mut ret = collect_sums(simpl((*rhs).clone()));
+        ret.0 += k;
+        ret.1 = prod!(Expr::Num(-1.0), ret.1);
+        return Some(ret);
+    }
+];
+
+gen_rule![collect_subs_right -> Option<(f64, Expr)>; 
+    Expr::Sub(lhs, rhs),
+    Expr::Num(k) = *rhs => @no_return
+    {
+        let mut ret = collect_sums(simpl((*lhs).clone()));
+        ret.0 -= k;
         return Some(ret);
     }
 ];
@@ -105,17 +146,36 @@ fn simpl(expr: Expr) -> Expr {
         pow_ident,
         pow_zero_zero,
         pow_zero,
+        collect_coeffs_wrapper,
+        collect_sums_wrapper,
         sum_recursion,
         sub_recursion,
         prod_recursion,
         div_recursion,
-        pow_recursion,
-        collect_coeffs_wrapper
+        pow_recursion
         on expr
     );
     expr
 }
 
+
+fn collect_sums_wrapper(expr: Expr) -> Option<Expr>{
+    let collected = collect_sums(expr);
+    Some(sum!(Expr::Num(collected.0), collected.1))
+}
+
+fn collect_sums(expr: Expr) -> (f64, Expr) {
+    // dbg!("Collect sums: ", expr.clone());
+    try_apply_all!(
+        @no_some
+        collect_sums_left,
+        collect_sums_right,
+        collect_subs_left,
+        collect_subs_right
+        on expr
+    );
+    (0.0, expr)
+}
 
 fn collect_coeffs_wrapper(expr: Expr) -> Option<Expr>{
     let collected = collect_coeffs(expr);
