@@ -37,6 +37,8 @@ gen_rule!(prod_ident_left; Expr::Prod(lhs, rhs), Expr::Num(k) = *lhs, k == 1.0
 gen_rule!(prod_ident_right; Expr::Prod(lhs, rhs), Expr::Num(k) = *rhs, k == 1.0 => 
     simpl((*lhs).clone()));
 gen_rule!(prod_elements; Expr::Prod(lhs, rhs), Expr::Num(k) = *lhs, Expr::Num(n) = *rhs => Expr::Num(k * n));
+gen_rule!(prod_zero_lhs; Expr::Prod(lhs, _), Expr::Num(k) = *lhs, k == 0.0 => Expr::Num(0.0));
+gen_rule!(prod_zero_rhs; Expr::Prod(_, rhs), Expr::Num(k) = *rhs, k == 0.0 => Expr::Num(0.0));
 
 // 1/k != k, k/1 == k
 gen_rule!(div_ident; Expr::Div(lhs, rhs), Expr::Num(k) = *rhs, k == 1.0 => simpl((*lhs).clone()));
@@ -81,7 +83,6 @@ gen_rule![collect_coeffs_right -> Option<(f64, Expr)>;
 gen_rule!(base_num; Expr::Num(k) => Expr::Num(k));
 gen_rule!(base_var; Expr::Var => Expr::Var);
 
-
 // internal simplification function
 fn simpl(expr: Expr) -> Expr {
     try_apply_all!(
@@ -95,6 +96,8 @@ fn simpl(expr: Expr) -> Expr {
         sub_elements,
         prod_ident_left,
         prod_ident_right,
+        prod_zero_lhs,
+        prod_zero_rhs,
         prod_elements,
         div_ident,
         div_zero,
