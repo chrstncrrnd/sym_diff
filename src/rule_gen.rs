@@ -21,6 +21,15 @@ macro_rules! gen_rule {
         }
     };
 
+    // Function definition if we want to specify a custom return type.
+    // The return type, of course, must be optional
+    ($rule_name:ident -> $ret_ty:ty; $($others:tt)*) => {
+        fn $rule_name(expr: Expr) -> $ret_ty {
+            gen_rule!(@begin expr; $($others)*);
+            None
+        }
+    };
+
     // we must take $val as a paramater (which is expr) since otherwise we get an error
     // we mark this with begin so that we can only match the head once
     // start of precondition
@@ -95,6 +104,7 @@ macro_rules! try_apply {
 
     (@no_some $rule_name:ident, $expression:ident) => {
         if let Some(ret) = $rule_name($expression.clone()) {
+            // println!("Applied: {}", stringify!($rule_name));
             return ret;
         }
     };
