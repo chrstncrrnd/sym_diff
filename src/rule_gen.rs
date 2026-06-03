@@ -1,7 +1,16 @@
 /// # Rule generation
-/// usage: `gen_rule!(rule_name, precondition, consequent)`
+/// usage: `gen_rule!(rule_name; preconditions, consequent)`
 /// generates a function named `rule_name` which takes an expression as an argument,
-/// if it matches `precondition` it produces `consequent`
+/// if it matches the `preconditions` it produces `consequent`
+/// The preconditions are seperated by commas, the first precondition is matched to the
+/// expression passed into the function and the following parts are matched as specified.
+/// Preconditions are either "if-let" type or "boolean" type. An "if-let" type has only one equals
+/// meanwhile the boolean type has two equals. The first precondition is always of "if-let" type.
+/// ## Example:
+/// `gen_rule!(test_rule; Expr::Sub(a, b), a == b => Expr::Num(0.0));`
+/// In this case, the precondition has the two parts: `Expr::Sub(a, b)` and `a == b`. 
+/// We check that the expression, `expr`, passed into `test_rule(expr)` matches `Expr::Sub(a, b)`
+/// then we check that a and b are equal via `a == b`.
 #[macro_export]
 macro_rules! gen_rule {
     // function definition
@@ -64,6 +73,11 @@ macro_rules! gen_rule {
     // @no_some means that the macro caller handles if optionalness of the return value
     (@end @no_some $out_pat:expr) => {
         return $out_pat;
+    };
+
+    // @no_return means that the macro caller must be a panic for instance
+    (@end @no_return $out_pat:expr) => {
+        $out_pat;
     };
 }
 
