@@ -1,12 +1,12 @@
-use std::{fmt::Display, vec};
 use std::rc::Rc;
+use std::{fmt::Display, vec};
 
 use crate::{
     functions::Func,
     tokenizer::{Lexer, Token},
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Expr {
     Num(f64),
     Var,
@@ -19,13 +19,11 @@ pub enum Expr {
 }
 
 // Brackets, powers, Division, Multiplication, addition subtraction
-const TOK_PRECENDENCE_COUNT: usize = 5;
-const TOK_PRECENDENCE: [Token; TOK_PRECENDENCE_COUNT] = [
-    Token::Power,
-    Token::Div,
-    Token::Mult,
-    Token::Plus,
-    Token::Minus,
+const TOK_PRECENDENCE_COUNT: usize = 3;
+const TOK_PRECENDENCE: [&[Token]; TOK_PRECENDENCE_COUNT] = [
+    &[Token::Power],
+    &[Token::Mult, Token::Div],
+    &[Token::Plus, Token::Minus],
 ];
 
 pub fn parse(lexer: Lexer) -> Result<Expr, String> {
@@ -112,28 +110,23 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
 
     if *toks.first().unwrap() == Token::Minus {
         let rhs = parse_at_lvl(toks.clone().split_off(1), level)?;
-
         return Ok(Expr::Prod(Rc::new(Expr::Num(-1.0)), Rc::new(rhs)));
     }
 
-    if TOK_PRECENDENCE[level - 1] == *toks.first().unwrap()
-        || TOK_PRECENDENCE[level - 1] == *toks.last().unwrap()
+    if TOK_PRECENDENCE[level - 1].contains(toks.first().unwrap())
+        || TOK_PRECENDENCE[level - 1].contains(toks.last().unwrap())
     {
         return Err("Error, binary operator requires two arguments!".to_string());
     }
 
-    let mut lhs: Vec<Token> = Vec::new();
-    let mut rhs: Vec<Token> = Vec::new();
-    let mut on_lhs = true;
+    let mut split_idx: Option<usize> = None;
     let mut bracket_level = 0;
     let mut bracketed_statement = true;
 
-    for tok in &toks {
+    for (i, tok) in toks.iter().enumerate() {
         if let Token::LParen = tok {
             bracket_level += 1;
         }
-        // this condition must go here because if we put it before the above, we get zero at the
-        // start of the loop and after the next means we get zero at the end of the loop
         if bracket_level == 0 {
             bracketed_statement = false;
         }
@@ -141,39 +134,51 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
             bracket_level -= 1;
         }
 
-        // level 0 is special
-        if *tok == TOK_PRECENDENCE[level - 1] && bracket_level == 0 && on_lhs {
-            on_lhs = false;
-        } else if on_lhs {
-            lhs.push(tok.clone());
-        } else {
-            rhs.push(tok.clone());
+        if TOK_PRECENDENCE[level - 1].contains(tok) && bracket_level == 0 {
+            if level - 1 == 0 {
+                // power is right-associative, so split at the first occurrence
+                if split_idx.is_none() {
+                    split_idx = Some(i);
+                }
+            } else {
+                // rest is left-associative, so split at the last occurrence
+                split_idx = Some(i);
+            }
         }
     }
+
     if bracketed_statement {
-        if lhs.is_empty() {
+        if toks.len() <= 2 {
             return Err("Missing operand!".to_string());
         }
 
         // remove the brackets
-        lhs.pop();
-        lhs.remove(0);
-        return parse_at_lvl(lhs, TOK_PRECENDENCE_COUNT);
+        let mut inner = toks.clone();
+        inner.pop();
+        inner.remove(0);
+        return parse_at_lvl(inner, TOK_PRECENDENCE_COUNT);
     }
-    // there is none of the specified operator in this expression
-    if on_lhs {
-        parse_at_lvl(lhs, level - 1)
-    }
-    // we have encountered at least one of the given operator
-    else {
-        // println!("LHS: {:?}, RHS: {:?}", lhs, rhs);
-        let res_lhs = parse_at_lvl(lhs.clone(), level - 1);
-        // rhs may not be free of current token
-        let res_rhs = parse_at_lvl(rhs.clone(), level);
+
+    if let Some(idx) = split_idx {
+        // we have encountered at least one of the given operator
+        let operator_tok = toks[idx].clone();
+        let mut lhs = toks.clone();
+        let mut rhs = lhs.split_off(idx);
+        // remove the operator token
+        rhs.remove(0);
+
+        let (lhs_level, rhs_level) = if level - 1 == 0 {
+            (level - 1, level)
+        } else {
+            (level, level - 1)
+        };
+
+        let res_lhs = parse_at_lvl(lhs.clone(), lhs_level);
+        let res_rhs = parse_at_lvl(rhs.clone(), rhs_level);
         if let Ok(ref lhs_ok) = res_lhs
             && let Ok(rhs_ok) = res_rhs
         {
-            match TOK_PRECENDENCE[level - 1] {
+            match operator_tok {
                 Token::Mult => Ok(Expr::Prod(Rc::new(lhs_ok.clone()), Rc::new(rhs_ok))),
                 Token::Div => Ok(Expr::Div(Rc::new(lhs_ok.clone()), Rc::new(rhs_ok))),
                 Token::Plus => Ok(Expr::Sum(Rc::new(lhs_ok.clone()), Rc::new(rhs_ok))),
@@ -186,6 +191,10 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         } else {
             res_rhs
         }
+    }
+    // there is none of the specified operator in this expression
+    else {
+        parse_at_lvl(toks, level - 1)
     }
 }
 
@@ -243,6 +252,17 @@ impl Display for Expr {
                     write!(f, "{first} * {second}")
                 } else {
                     fmt_child(a, prec, f)?;
+                    let needs_star = match &**a {
+                        Expr::Num(_) => match &**b {
+                            Expr::Num(_) => true,
+                            Expr::Prod(b_left, _) => matches!(**b_left, Expr::Num(_)),
+                            _ => false,
+                        },
+                        _ => false,
+                    };
+                    if needs_star {
+                        write!(f, " * ")?;
+                    }
                     fmt_child(b, prec, f)
                 }
             }
