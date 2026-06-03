@@ -124,6 +124,11 @@ gen_rule![collect_subs_right -> Option<(f64, Expr)>;
 gen_rule!(base_num; Expr::Num(k) => Expr::Num(k));
 gen_rule!(base_var; Expr::Var => Expr::Var);
 
+
+// variable rules
+gen_rule!(basic_factoring; Expr::Sum(a, b), Expr::Var = *a, Expr::Var = *b => prod!(Expr::Num(2.0), Expr::Var));
+
+
 // internal simplification function
 fn simpl(expr: Expr) -> Expr {
     try_apply_all!(
@@ -148,6 +153,7 @@ fn simpl(expr: Expr) -> Expr {
         pow_zero,
         collect_coeffs_wrapper,
         collect_sums_wrapper,
+        basic_factoring,
         sum_recursion,
         sub_recursion,
         prod_recursion,

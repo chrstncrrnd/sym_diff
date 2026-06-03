@@ -56,6 +56,10 @@ cargo run
 - [ ] Advanced simplification of expressions:
     - [ ] Trigonometric simplifications
     - [ ] Division using GCD (not just of numbers though)
+    - [ ] Factoring
+    - [ ] Sorting of expression in order for `x + 1 + x + 2` => `2x + 3` currently it goes to: `2 + 1 + x + x`
+    - [ ] Identical term cancellation
+    - [ ] Extended power rules
 
 ## Errors to fix:
 - [x] ~There should be a syntax error for `10 x *` (missing operand)~
