@@ -21,20 +21,22 @@ pub fn simplify(expr: Expr) -> Expr {
 }
 
 // SUM/SUB RULES:
-gen_rule!(sum_ident_left; Expr::Sum(lhs, rhs) | Expr::Sub(lhs, rhs), Expr::Num(k) = *lhs, k == 0.0 
+gen_rule!(sum_ident_left; Expr::Sum(lhs, rhs), Expr::Num(k) = *lhs, k == 0.0 
     => simpl((*rhs).clone()));
+gen_rule!(sub_ident_left; Expr::Sub(lhs, rhs), Expr::Num(k) = *lhs, k == 0.0 
+    => prod!(Expr::Num(-1.0), simpl((*rhs).clone())));
 gen_rule!(sum_ident_right; Expr::Sum(lhs, rhs) | Expr::Sub(lhs, rhs), Expr::Num(k) = *rhs, k == 0.0 
     => simpl((*lhs).clone()));
 gen_rule!(sum_elements; Expr::Sum(lhs, rhs), Expr::Num(k) = *lhs, Expr::Num(n) = *rhs => Expr::Num(k + n));
 gen_rule!(sub_elements; Expr::Sub(lhs, rhs), Expr::Num(k) = *lhs, Expr::Num(n) = *rhs => Expr::Num(k - n));
 
 
-// MULT/DIV RULES
-gen_rule!(mult_ident_left; Expr::Prod(lhs, rhs), Expr::Num(k) = *lhs, k == 1.0 
+// PROD/DIV RULES
+gen_rule!(prod_ident_left; Expr::Prod(lhs, rhs), Expr::Num(k) = *lhs, k == 1.0 
     => simpl((*rhs).clone()));
-gen_rule!(mult_ident_right; Expr::Prod(lhs, rhs), Expr::Num(k) = *rhs, k == 1.0 => 
+gen_rule!(prod_ident_right; Expr::Prod(lhs, rhs), Expr::Num(k) = *rhs, k == 1.0 => 
     simpl((*lhs).clone()));
-gen_rule!(mult_elements; Expr::Prod(lhs, rhs), Expr::Num(k) = *lhs, Expr::Num(n) = *rhs => Expr::Num(k * n));
+gen_rule!(prod_elements; Expr::Prod(lhs, rhs), Expr::Num(k) = *lhs, Expr::Num(n) = *rhs => Expr::Num(k * n));
 
 // 1/k != k, k/1 == k
 gen_rule!(div_ident; Expr::Div(lhs, rhs), Expr::Num(k) = *rhs, k == 1.0 => simpl((*lhs).clone()));
@@ -87,12 +89,13 @@ fn simpl(expr: Expr) -> Expr {
         base_num,
         base_var,
         sum_ident_left,
+        sub_ident_left,
         sum_ident_right,
         sum_elements,
         sub_elements,
-        mult_ident_left,
-        mult_ident_right,
-        mult_elements,
+        prod_ident_left,
+        prod_ident_right,
+        prod_elements,
         div_ident,
         div_zero,
         div_elements,
