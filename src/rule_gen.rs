@@ -4,7 +4,7 @@
 /// if it matches `precondition` it produces `consequent`
 #[macro_export]
 macro_rules! gen_rule {
-    // head (out is always some)
+    // function definition
     ($rule_name:ident; $($others:tt)*) => {
         fn $rule_name(expr: Expr) -> Option<Expr> {
             gen_rule!(@begin expr; $($others)*);
@@ -12,6 +12,7 @@ macro_rules! gen_rule {
         }
     };
 
+    // we must take $val as a paramater (which is expr) since otherwise we get an error
     // we mark this with begin so that we can only match the head once
     // start of precondition
     (@begin $val:ident; $head:pat, $($others:tt)*) => {
@@ -26,30 +27,30 @@ macro_rules! gen_rule {
         }
     };
 
-    // inside precondition
+    // inside precondition (if let case)
     (@nest $head_pat:pat = $head_expr:expr, $($others:tt)*) => {
         if let $head_pat = $head_expr {
             gen_rule!(@nest $($others)*);
         }
     };
 
-    // end of precondition
+    // end of precondition (if let case)
     (@nest $head_pat:pat = $head_expr:expr => $($others:tt)*) => {
         if let $head_pat = $head_expr {
             gen_rule!(@end $($others)*);
         }
     };
 
-    // inside precondition
-    (@nest $head_ident:ident == $head_lit:literal, $($others:tt)*) => {
+    // inside precondition (boolean case)
+    (@nest $head_ident:ident == $head_lit:tt, $($others:tt)*) => {
         if $head_ident == $head_lit {
             gen_rule!(@nest $($others)*);
         }
     };
 
 
-    // end of precondition
-    (@nest $head_ident:ident == $head_lit:literal => $($others:tt)*) => {
+    // end of precondition (boolean case)
+    (@nest $head_ident:ident == $head_lit:tt => $($others:tt)*) => {
         if $head_ident == $head_lit {
             gen_rule!(@end $($others)*);
         }
