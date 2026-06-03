@@ -24,11 +24,11 @@ cargo run
     - [x] ~Implicit multiplication on brackets `10(x+3)`~
 - [x] ~Expression to text~
     - [x] ~In a nice way~
-    - [ ] Update product output since `10x * 2 => 10x2` right now.
+    - [x] ~Update product output since `10x * 2 => 10x2` right now.~
 - [x] ~Basic functions~
     - [ ] Parser: allow for `sin 10 x` => `sin(10(x))`
     - [ ] Tokenizer: parse text differently such that `sinx` => `sin(x)` works
-- [ ] Differentiation rules (Chain, product, etc...)
+- [x] ~Differentiation rules (Chain, product, etc...)~
     - [x] ~Power rule~
     - [x] ~Linearity~
     - [x] ~Constants~
@@ -48,7 +48,6 @@ cargo run
     - [x] ~`EXPR ** 1` => `EXPR`~
     - [x] ~`EXPR ** 0` => `EXPR` (`EXPR` != 0)~
     - [x] ~`6(2(EXPR))` => `12(EXPR)`~
-- [ ] Differentiation strategies
 - [x] ~Differentiation macros~
 - [ ] LaTeX support for expression output
 - [ ] LaTeX support for expression input
@@ -64,5 +63,5 @@ cargo run
 ## Errors to fix:
 - [x] ~There should be a syntax error for `10 x *` (missing operand)~
 - [x] ~There should be a syntax error for `10 * (x++3)` (double operator)~
-- [ ] Find some way of properly parsing `(x)**2`.
+- [x] ~Find some way of properly parsing `(x)**2`.~
 - [ ] `10 x ** (1+2)` raises an error.
