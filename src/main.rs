@@ -1,6 +1,6 @@
-use std::io;
+use std::io::{self, Write, stdout};
 
-use crate::{diff::diff, parser::parse, simpl::simplify, tokenizer::Lexer};
+use crate::{diff::diff, parser::parse, parser::Expr, simpl::simplify, tokenizer::Lexer};
 use clap::Parser;
 
 mod diff;
@@ -21,6 +21,10 @@ struct Args {
     /// Expression to differentiate or simplify
     #[arg(short, long)]
     expression: Option<String>,
+
+    /// Enable debug logs
+    #[arg(short, long)]
+    debug: bool,
 }
 
 fn main() {
@@ -35,6 +39,8 @@ fn main() {
     // otherwise we ask for the expression in standard input
     else {
         println!("Expression to differentiate: ");
+        print!("> ");
+        let _ = stdout().flush();
         io::stdin().read_line(&mut expression_string).unwrap();
     }
 
@@ -43,25 +49,33 @@ fn main() {
 
     let res = parse(lexer);
     if let Ok(oki) = res {
-        print!("Parsed expression correctly as: ");
-        println!("View: {}", oki);
-        println!("DebugView: {:?}", oki);
-
+        if args.debug {
+            print!("Parsed expression correctly as: ");
+            println!("View: {}", oki);
+            println!("DebugView: {:?}", oki);
+        }
         // This is for debug purposes:
         if args.simplify {
-            println!("Only Simplifying expression!");
-            let simplified = simplify(oki.clone());
+            println!("[INFO] Only simplifying expression");
+        }
+        let diffed = if args.simplify {Expr::Num(0_f64)} else{diff(oki.clone()).unwrap()};
+
+        if args.debug && !args.simplify {
+            println!("Diff: {}", diffed);
+            println!("Diff DebugView: {:?}", diffed);
+        }
+        let simplified = if args.simplify {
+            simplify(oki)
+        } else {
+            simplify(diffed)
+        };
+
+        if args.debug {
             println!("Simplified: {}", simplified);
             println!("Simplified DebugView: {:?}", simplified);
-            return;
+        } else {
+            println!("{}", simplified);
         }
-
-        let diffed = diff(oki.clone()).unwrap();
-        println!("Diff: {}", diffed);
-        println!("Diff DebugView: {:?}", diffed);
-        let simplified = simplify(diffed);
-        println!("Simplified: {}", simplified);
-        println!("Simplified DebugView: {:?}", simplified);
     } else {
         eprint!("Recieved an error: ");
         eprintln!("{}", res.err().unwrap());
