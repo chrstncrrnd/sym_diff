@@ -19,6 +19,9 @@ gen_rule!(sum_linearity; Expr::Sum(ea, eb), Some(lhs) = diff((*ea).clone()), Som
 
 gen_rule!(sub_linearity; Expr::Sub(ea, eb), Some(lhs) = diff((*ea).clone()), Some(rhs) = diff((*eb).clone()) => sub!(lhs, rhs));
 
+gen_rule!(exponent; Expr::Pow(e, pow), Expr::E = *e, Some(d_rhs) = diff((*pow).clone()) => 
+    prod!(d_rhs, Expr::Pow(e, pow)));
+
 gen_rule!(pow_rule; Expr::Pow(base, exp), Expr::Num(p) = *exp, Some(u_prime) = diff((*base).clone())
     =>
     prod!(
@@ -111,13 +114,24 @@ gen_rule!(cotan_rule; Expr::F(Func::Cotan, arg), Some(arg_prime) = diff((*arg).c
     )
 );
 
+gen_rule!(const_eval_sum; Expr::Sum(ea, eb), Expr::Num(a) = *ea, Expr::Num(b) = *eb =>
+    Expr::Num(a + b)
+);
+
+gen_rule!(const_eval_prod; Expr::Prod(ea, eb), Expr::Num(a) = *ea, Expr::Num(b) = *eb =>
+    Expr::Num(a * b)
+);
+
 pub fn diff(expr: Expr) -> Option<Expr> {
     try_apply_all!(
+        const_eval_sum,
+        const_eval_prod,
         var_rule,
         const_rule,
         prod_linearity_left,
         prod_linearity_right,
         sum_linearity,
+        exponent,
         pow_rule,
         sub_linearity,
         product_rule,

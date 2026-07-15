@@ -15,6 +15,7 @@ pub enum Token {
     RParen,
     Err(String),
     Func(Func),
+    E,
 }
 
 #[derive(Debug)]
@@ -71,6 +72,17 @@ impl Iterator for Lexer<'_> {
             while let Some(&next_ch) = self.input.peek() {
                 if next_ch.is_alphabetic() {
                     buf.push(self.input.next().unwrap());
+                    if let Ok(func) = buf.parse::<Func>() {
+                        return Some(Token::Func(func));
+                    }
+
+                    // check if its a var
+                    if buf == "x" {
+                        return Some(Token::Var);
+                    }
+                    if buf == "e" {
+                        return Some(Token::E);
+                    }
                 } else {
                     break;
                 }
@@ -79,6 +91,9 @@ impl Iterator for Lexer<'_> {
             // check if its a var
             if buf == "x" {
                 return Some(Token::Var);
+            }
+            if buf == "e" {
+                return Some(Token::E);
             }
 
             if let Ok(func) = buf.parse::<Func>() {

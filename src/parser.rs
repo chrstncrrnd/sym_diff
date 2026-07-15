@@ -16,6 +16,7 @@ pub enum Expr {
     Sub(Rc<Expr>, Rc<Expr>),
     Pow(Rc<Expr>, Rc<Expr>),
     F(Func, Rc<Expr>),
+    E,
 }
 
 // Brackets, powers, Division, Multiplication, addition subtraction
@@ -104,6 +105,7 @@ fn parse_at_lvl(toks: Vec<Token>, level: usize) -> Result<Expr, String> {
         return match toks[0] {
             Token::Var => Ok(Expr::Var),
             Token::Num(n) => Ok(Expr::Num(n)),
+            Token::E => Ok(Expr::E),
             _ => Err("Unexpected token!".to_string()),
         };
     }
@@ -204,7 +206,7 @@ impl Expr {
             Expr::Sum(_, _) | Expr::Sub(_, _) => 1,
             Expr::Prod(_, _) | Expr::Div(_, _) => 2,
             Expr::Pow(_, _) => 3,
-            Expr::Num(_) | Expr::Var | Expr::F(_, _) => 4,
+            Expr::Num(_) | Expr::Var | Expr::E | Expr::F(_, _) => 4,
         }
     }
 }
@@ -243,6 +245,8 @@ impl Display for Expr {
                 write!(f, " ** ")?;
                 fmt_child(b, prec, f)
             }
+            Expr::E => write!(f, "e"),
+
             Expr::Prod(a, b) => {
                 if let Expr::Num(-1.0) = **a {
                     write!(f, "-{b}")

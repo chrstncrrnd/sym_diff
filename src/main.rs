@@ -1,6 +1,6 @@
 use std::io::{self, Write, stdout};
 
-use crate::{diff::diff, parser::parse, parser::Expr, simpl::simplify, tokenizer::Lexer};
+use crate::{diff::diff, parser::Expr, parser::parse, simpl::simplify, tokenizer::Lexer};
 use clap::Parser;
 
 mod diff;
@@ -58,7 +58,11 @@ fn main() {
         if args.simplify {
             println!("[INFO] Only simplifying expression");
         }
-        let diffed = if args.simplify {Expr::Num(0_f64)} else{diff(oki.clone()).unwrap()};
+        let diffed = if args.simplify {
+            Expr::Num(0_f64)
+        } else {
+            diff(oki.clone()).unwrap()
+        };
 
         if args.debug && !args.simplify {
             println!("Diff: {}", diffed);
