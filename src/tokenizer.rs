@@ -122,3 +122,38 @@ impl Iterator for Lexer<'_> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tokenizes_simple_expression() {
+        let toks: Vec<Token> = Lexer::new("2x + 3".chars().peekable()).collect();
+        assert_eq!(
+            toks,
+            vec![
+                Token::Num(2.0),
+                Token::Var,
+                Token::Plus,
+                Token::Num(3.0),
+            ]
+        );
+    }
+
+    #[test]
+    fn tokenizes_power_and_func() {
+        let toks: Vec<Token> = Lexer::new("sin(x)**2".chars().peekable()).collect();
+        assert_eq!(
+            toks,
+            vec![
+                Token::Func(Func::Sin),
+                Token::LParen,
+                Token::Var,
+                Token::RParen,
+                Token::Power,
+                Token::Num(2.0),
+            ]
+        );
+    }
+}

@@ -276,3 +276,31 @@ impl Display for Expr {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn parse_str(s: &str) -> Expr {
+        parse(Lexer::new(s.chars().peekable())).expect("expected valid expression")
+    }
+
+    #[test]
+    fn parses_simple_sum() {
+        assert_eq!(
+            parse_str("1 + x"),
+            Expr::Sum(Rc::new(Expr::Num(1.0)), Rc::new(Expr::Var))
+        );
+    }
+
+    #[test]
+    fn respects_operator_precedence() {
+        // 2 + 3 * x should parse as 2 + (3 * x), not (2 + 3) * x
+        assert_eq!(parse_str("2 + 3x").to_string(), "2 + 3x");
+    }
+
+    #[test]
+    fn rejects_missing_operand() {
+        assert!(parse(Lexer::new("1 +".chars().peekable())).is_err());
+    }
+}

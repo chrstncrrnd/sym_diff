@@ -51,7 +51,7 @@ cargo run
 - [x] ~Differentiation macros~
 - [ ] LaTeX support for expression output
 - [ ] LaTeX support for expression input
-- [ ] Add tests
+- [x] ~Add tests~
 - [ ] Advanced simplification of expressions:
     - [ ] Trigonometric simplifications
     - [ ] Division using GCD (not just of numbers though)
