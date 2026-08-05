@@ -43,6 +43,29 @@ gen_rule!(num_pow_expr; Expr::Pow(a, exp), Expr::Num(k) = *a, Some(u_prime) = di
     )
 );
 
+// this is a massive equation
+gen_rule!(expr_pow_expr; Expr::Pow(f, g),
+    Some(f_prime) = diff((*f).clone()),
+    Some(g_prime) = diff((*g).clone())
+    => prod!(
+        Expr::Pow(f.clone(), g.clone()),
+        sum!(
+            prod!(
+                g_prime,
+                Expr::F(Func::Log, f.clone())
+            ),
+            prod!(
+                (*g).clone(),
+                div!(
+                    f_prime,
+                    (*f).clone()
+                )
+            )
+
+        )
+    )
+);
+
 gen_rule!(product_rule; Expr::Prod(a, b), Some(a_prime) = diff((*a).clone()), Some(b_prime) = diff((*b).clone()) =>
     sum!(
         prod!((*a).clone(), b_prime),
@@ -143,6 +166,7 @@ pub fn diff(expr: Expr) -> Option<Expr> {
         exponent,
         expr_pow_num,
         num_pow_expr,
+        expr_pow_expr,
         sub_linearity,
         product_rule,
         quotient_rule,
