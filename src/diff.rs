@@ -22,7 +22,7 @@ gen_rule!(sub_linearity; Expr::Sub(ea, eb), Some(lhs) = diff((*ea).clone()), Som
 gen_rule!(exponent; Expr::Pow(e, pow), Expr::E = *e, Some(d_rhs) = diff((*pow).clone()) => 
     prod!(d_rhs, Expr::Pow(e, pow)));
 
-gen_rule!(pow_rule; Expr::Pow(base, exp), Expr::Num(p) = *exp, Some(u_prime) = diff((*base).clone())
+gen_rule!(expr_pow_num; Expr::Pow(base, exp), Expr::Num(p) = *exp, Some(u_prime) = diff((*base).clone())
     =>
     prod!(
         Expr::Num(p),
@@ -31,6 +31,15 @@ gen_rule!(pow_rule; Expr::Pow(base, exp), Expr::Num(p) = *exp, Some(u_prime) = d
             (*base).clone(),
             Expr::Num(p-1.0)
         )
+    )
+);
+
+
+gen_rule!(num_pow_expr; Expr::Pow(a, exp), Expr::Num(k) = *a, Some(u_prime) = diff((*exp).clone()) => 
+    prod!(
+        Expr::F(Func::Log, Rc::new(Expr::Num(k))),
+        Expr::Pow(a, exp),
+        u_prime
     )
 );
 
@@ -132,7 +141,8 @@ pub fn diff(expr: Expr) -> Option<Expr> {
         prod_linearity_right,
         sum_linearity,
         exponent,
-        pow_rule,
+        expr_pow_num,
+        num_pow_expr,
         sub_linearity,
         product_rule,
         quotient_rule,
@@ -146,3 +156,37 @@ pub fn diff(expr: Expr) -> Option<Expr> {
         on expr);
     None
 }
+
+// really basic tests to make sure the diff works as intended.
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{parser::parse, simpl::simplify, tokenizer::Lexer};
+
+    fn diff_str(s: &str) -> Expr {
+        let expr = parse(Lexer::new(s.chars().peekable())).expect("expected valid expression");
+        simplify(diff(expr).expect("expected differentiable expression"))
+    }
+
+    #[test]
+    fn diff_var() {
+        assert_eq!(diff_str("x"), Expr::Num(1.0));
+    }
+
+    #[test]
+    fn diff_var_pow() {
+        assert_eq!(diff_str("x**3").to_string(), "3x ** 2");
+    }
+
+    #[test]
+    fn const_eval(){
+        assert_eq!(diff_str("10 + 2").to_string(), "12");
+    }
+    
+    #[test]
+    fn const_eval_in_exponent(){
+        assert_eq!(diff_str("x**(1+2)").to_string(),"3x ** 2");
+    }
+}
+
+
