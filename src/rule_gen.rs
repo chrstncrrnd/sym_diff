@@ -96,14 +96,14 @@ macro_rules! gen_rule {
 macro_rules! try_apply {
     ($rule_name:ident, $expression:ident) => {
         if let Some(ret) = $rule_name($expression.clone()) {
-            eprintln!("Applied rule: {}", stringify!($rule_name));
+            // eprintln!("Applied rule: {}", stringify!($rule_name));
             return Some(ret);
         }
     };
 
     (@no_some $rule_name:ident, $expression:ident) => {
         if let Some(ret) = $rule_name($expression.clone()) {
-            eprintln!("Applied rule: {}", stringify!($rule_name));
+            // eprintln!("Applied rule: {}", stringify!($rule_name));
             return ret;
         }
     };
